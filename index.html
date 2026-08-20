@@ -94,7 +94,6 @@
                 <label data-i18n="kam">Key Account Manager (KAM)</label>
                 <select id="sel-kam" disabled><option value="" data-i18n="sel_kam">-- Select KAM --</option></select>
             </div>
-            <!-- Bộ chọn Revise Lịch sử -->
             <div class="filter-group">
                 <label data-i18n="rev_period">Revise Period</label>
                 <select id="sel-revise" onchange="recalculateKPIs()">
@@ -204,7 +203,7 @@
             tab_kam: "TRACKING BY KAM", tab_team: "TRACKING BY SALE TEAM", tab_crit: "EVALUATION CRITERIA",
             eff_kam: "Overall Efficiency of KAM: ", eff_team: "Efficiency by Sale Team: ",
             pls_sel_kam: "Please Select KAM and Click Load Data",
-            no_staff: "No staff belongs to this KAM.", no_data: "Not enough data in both periods to compare.",
+            no_staff: "No staff belongs to this KAM.", no_data: "No valid data found in both periods.",
             staff_lbl: "Staff: ",
             set_title: "Settings", set_lang: "Language:", set_theme: "Theme:", set_font: "Font Size:",
             theme_light: "Light", theme_dark: "Dark",
@@ -229,7 +228,7 @@
             tab_kam: "TRACKING BY KAM", tab_team: "TRACKING BY SALE TEAM", tab_crit: "THANG ĐÁNH GIÁ",
             eff_kam: "Hiệu quả tổng hợp của KAM: ", eff_team: "Hiệu quả theo Sale Team: ",
             pls_sel_kam: "Vui lòng Chọn Quản lý (KAM) và Bấm Tải Dữ Liệu",
-            no_staff: "Không có nhân viên nào thuộc KAM này.", no_data: "Không đủ dữ liệu của cả 2 kỳ để so sánh.",
+            no_staff: "Không có nhân viên nào thuộc KAM này.", no_data: "Không có dữ liệu hợp lệ ở cả 2 kỳ.",
             staff_lbl: "Nhân viên: ",
             set_title: "Cài đặt", set_lang: "Ngôn ngữ:", set_theme: "Giao diện:", set_font: "Cỡ chữ:",
             theme_light: "Sáng", theme_dark: "Tối",
@@ -277,7 +276,6 @@
         document.getElementById('fontValue').innerText = val + 'px';
     }
 
-    // URL API mới
     const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycby3Ta_U7fXdnCDd3fj-UdQa39CEk8kTnAvTLYaoHQA5oSsZW8U7zboHzPjZHd9fY507oQ/exec';
     const SUPABASE_URL = 'https://mrqldgycwovpbmzdeuyz.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_itZfZBVw7bxE184tGh7x8A_0_r-QB5p';
@@ -293,7 +291,6 @@
     let precalcKAE = {}, precalcKAM = {};
     let isDataReady = false;
 
-    // Tọa độ đã chuẩn hóa (Đơn hàng chỉ còn 3 cột A, B, C)
     let idx = { NV: 6, DATE: 10, DAY: 11, IN_OUT: 13, T_IN: 19, T_OUT: 20, PO: 22, LAT: 28, LNG: 29 };
     let idxDh = { PO: 0, SKU: 1, SALES: 2 };
 
@@ -378,9 +375,10 @@
         }
     }
 
-    // KHÔI PHỤC: Hàm cleanName gốc kết hợp Regex thần thánh
+    // NÂNG CẤP HÀM LÀM SẠCH TÊN: Lột bỏ khoảng trắng thừa, xóa tiền tố, chuyển chữ thường chuẩn xác
     function cleanName(n) { 
-        return String(n || '').trim().toLowerCase().replace(/^(kae|dsr|kam)\s+/g, ''); 
+        if (!n) return '';
+        return String(n).toLowerCase().replace(/^(kae|dsr|kam)\s+/g, '').replace(/\s+/g, ' ').trim(); 
     }
 
     function extractNumber(val) { 
@@ -494,11 +492,10 @@
 
             let oldRaw = compileSet(oldSet), revRaw = compileSet(reviseSet);
             
-            // HƯỚNG C: Ép buộc cả 2 kỳ phải có dữ liệu
-            let hasBothData = (oldRaw.out > 0 && revRaw.out > 0);
-            allKaeRaw[kaeName] = { old: oldRaw, rev: revRaw, hasData: hasBothData };
+            // NỚI LỎNG LUẬT: Chỉ cần 1 trong 2 kỳ có Data là được tính KPI
+            let hasData = (oldRaw.out > 0 || revRaw.out > 0);
+            allKaeRaw[kaeName] = { old: oldRaw, rev: revRaw, hasData: hasData };
 
-            // Chỉ tính thành tích cho KAM nếu nhân viên có đủ dữ liệu 2 kỳ
             if(config.kam && allKamRaw[config.kam] && allKaeRaw[kaeName].hasData) {
                 if(oldRaw.out > 0) allKamRaw[config.kam].old.kaeCount += 1; 
                 if(revRaw.out > 0) allKamRaw[config.kam].rev.kaeCount += 1;
@@ -612,15 +609,13 @@
         } else {
             kaesInKam.forEach(kae => {
                 let kData = precalcKAE[kae];
-                // Phát hiện thiếu data (thiếu 1 trong 2 kỳ hoặc trắng toàn bộ)
                 if(kData && !kData.hasData) hasWarning = true;
                 
                 let warnBadge = (kData && !kData.hasData) ? `<span class="kae-warning">${t('warn_tag')}</span>` : '';
                 
-                // Trả về cảnh báo nếu rớt điều kiện VÀ
                 let tbRows = (kData && kData.hasData) 
                     ? genTbodyRows(kData.old, kData.rev) 
-                    : `<tr><td colspan="5" style="text-align:center; padding:20px; color: #dc2626; font-weight: 600;">${t('warn_delay')}</td></tr>`;
+                    : `<tr><td colspan="5" style="text-align:center; padding:20px; color: #dc2626; font-weight: 600;">${t('no_data')}</td></tr>`;
 
                 teamHTML += `
                     <div class="kae-card">
@@ -636,7 +631,6 @@
             });
         }
         teamContainer.innerHTML = teamHTML;
-        // Bật Warning Box tổng nếu trong team có ít nhất 1 KAE bị thiếu số liệu
         document.getElementById('warning-box').style.display = hasWarning ? 'block' : 'none';
     }
 
