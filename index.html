@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,160 +11,271 @@
     
     <style>
         :root {
-            --bg-color: #f1f5f9;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --border: #cbd5e1;
-            --text-main: #0f172a;
-            --text-sub: #475569;
-            --white: #ffffff;
-            
-            --color-tot: #22c55e;
-            --color-dat: #86efac;
-            --color-cai-thien: #fef08a;
-            --color-khong-hq: #fca5a5;
+            /* Light Theme Variables */
+            --bg-color: #f1f5f9; --primary: #3b82f6; --primary-hover: #2563eb; --border: #cbd5e1;
+            --text-main: #0f172a; --text-sub: #475569; --white: #ffffff;
+            --color-tot: #22c55e; --color-dat: #86efac; --color-cai-thien: #fef08a; --color-khong-hq: #fca5a5;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --badge-bg: #e2e8f0; --warning-bg: #fff7ed; --warning-border: #f97316;
+            --header-color: #1e3a8a; --table-header: #f8fafc;
         }
 
-        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); font-size: 13px; }
+        /* Dark Theme Variables */
+        body.dark-mode {
+            --bg-color: #0f172a; --primary: #3b82f6; --primary-hover: #60a5fa; --border: #334155;
+            --text-main: #f8fafc; --text-sub: #94a3b8; --white: #1e293b;
+            --color-tot: #16a34a; --color-dat: #4ade80; --color-cai-thien: #facc15; --color-khong-hq: #ef4444;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --badge-bg: #334155; --warning-bg: #451a03; --warning-border: #ea580c;
+            --header-color: #38bdf8; --table-header: #0f172a;
+        }
+
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); font-size: 13px; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         
-        /* Header & Filters */
-        .header { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .header h1 { margin: 0 0 15px 0; font-size: 20px; color: #1e293b; text-transform: uppercase; }
+        .header { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: var(--card-shadow); margin-bottom: 20px; transition: 0.3s; }
+        .header h1 { margin: 0 0 15px 0; font-size: 1.5em; color: var(--header-color); text-transform: uppercase; }
         
         .filters { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
         .filter-group { display: flex; flex-direction: column; min-width: 250px; }
         .filter-group label { font-weight: 600; margin-bottom: 5px; color: var(--text-sub); }
-        .filter-group select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 14px; background: #fff; }
+        .filter-group select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 1em; background: var(--white); color: var(--text-main); }
         
-        .btn-action { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; height: 40px; margin-left: auto; }
+        .btn-action { padding: 10px 20px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: auto; transition: 0.2s;}
         .btn-action:hover { background: var(--primary-hover); }
         .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
         
-        #status-bar { margin-top: 15px; font-size: 13px; color: var(--text-sub); display: flex; gap: 20px; }
-        .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; }
-        
-        #warning-box { display: none; margin-top: 15px; padding: 10px; background: #fff7ed; border-left: 4px solid #f97316; color: #c2410c; font-weight: 600; border-radius: 4px; }
+        #status-bar { margin-top: 15px; font-size: 1em; color: var(--text-sub); display: flex; gap: 20px; }
+        .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 4px; background: var(--badge-bg); }
+        #warning-box { display: none; margin-top: 15px; padding: 10px; background: var(--warning-bg); border-left: 4px solid var(--warning-border); color: var(--warning-border); font-weight: 600; border-radius: 4px; }
 
-        /* Tabs */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
-        .tab-btn { padding: 12px 20px; background: transparent; border: none; font-weight: 600; font-size: 15px; color: var(--text-sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.2s; }
+        .tab-btn { padding: 12px 20px; background: transparent; border: none; font-weight: 600; font-size: 1.1em; color: var(--text-sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
         .tab-btn:hover { color: var(--primary); }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         
-        .tab-content { display: none; background: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .tab-content { display: none; background: var(--white); padding: 25px; border-radius: 8px; box-shadow: var(--card-shadow); overflow-x: auto; transition: 0.3s; }
         .tab-content.active { display: block; }
         
-        /* Bảng hiển thị (Tables) */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; font-size: 1em; }
         th, td { border: 1px solid var(--border); padding: 12px; text-align: center; }
-        th { background: #f8fafc; font-weight: 700; color: #1e293b; position: sticky; top: 0; }
-        td:first-child { text-align: left; font-weight: 600; background: #f8fafc; width: 25%; }
+        th { background: var(--table-header); font-weight: 700; color: var(--text-main); position: sticky; top: 0; }
+        td:first-child { text-align: left; font-weight: 600; background: var(--table-header); width: 25%; }
         
-        /* Card KAE */
-        .kae-card { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .kae-card h3 { margin: 0 0 15px 0; color: #1e40af; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .kae-warning { color: #dc2626; font-size: 13px; font-weight: 600; background: #fee2e2; padding: 4px 8px; border-radius: 4px; }
+        .kae-card { background: var(--white); border: 2px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: var(--card-shadow); }
+        .kae-card h3 { margin: 0 0 15px 0; color: var(--header-color); font-size: 1.2em; border-bottom: 2px solid var(--border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .kae-warning { color: #dc2626; font-size: 0.9em; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-weight: 600;}
 
-        /* Màu sắc xếp loại */
-        .eval-tot { background-color: var(--color-tot) !important; color: white; font-weight: bold; }
-        .eval-dat { background-color: var(--color-dat) !important; color: #065f46; font-weight: bold; }
-        .eval-cai-thien { background-color: var(--color-cai-thien) !important; color: #854d0e; font-weight: bold; }
-        .eval-khong-hq { background-color: var(--color-khong-hq) !important; color: #7f1d1d; font-weight: bold; }
-        
+        /* Xếp loại */
+        .eval-tot { background-color: var(--color-tot) !important; color: #fff; font-weight: bold; }
+        .eval-dat { background-color: var(--color-dat) !important; color: #064e3b; font-weight: bold; }
+        .eval-cai-thien { background-color: var(--color-cai-thien) !important; color: #713f12; font-weight: bold; }
+        .eval-khong-hq { background-color: var(--color-khong-hq) !important; color: #450a0a; font-weight: bold; }
         .num-right { text-align: right; }
+
+        /* Settings Panel */
+        .settings-panel { background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; transition: 0.3s; }
+        .settings-panel summary { font-weight: 700; font-size: 1.1em; cursor: pointer; user-select: none; color: var(--primary); outline: none; }
+        .settings-content { display: flex; gap: 30px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
+        .set-group { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .set-btn { padding: 6px 12px; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-main); border-radius: 4px; font-weight: 600; transition: 0.2s; }
+        .set-btn:hover { background: var(--badge-bg); }
+        .set-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        input[type="range"] { cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>📊 Đánh Giá Hiệu Quả & Năng Suất Tuyến</h1>
+        <h1 data-i18n="app_title">📊 Tracking Effective & Efficiency Route</h1>
         <div class="filters">
             <div class="filter-group">
-                <label>Khu vực (Area)</label>
-                <select id="sel-area"><option value="">-- Chọn Khu vực --</option></select>
+                <label data-i18n="area">Area</label>
+                <select id="sel-area"><option value="" data-i18n="sel_area">-- Select Area --</option></select>
             </div>
             <div class="filter-group">
-                <label>Quản lý (KAM)</label>
-                <select id="sel-kam" disabled><option value="">-- Chọn KAM --</option></select>
+                <label data-i18n="kam">Key Account Manager (KAM)</label>
+                <select id="sel-kam" disabled><option value="" data-i18n="sel_kam">-- Select KAM --</option></select>
             </div>
-            <!-- Đã gỡ bộ lọc Nhân Viên -->
-            <button id="btn-load" class="btn-action" onclick="loadData()">📥 Tải & Tính Toán DL</button>
+            <button id="btn-load" class="btn-action" onclick="loadData()" data-i18n="btn_load">📥 Load & Calculate Data</button>
         </div>
         
         <div id="status-bar">
-            <span>Cấu hình API: <span id="st-api" class="status-badge">Đang chờ...</span></span>
-            <span>Dữ liệu Supabase: <span id="st-supa" class="status-badge">Chưa tải</span></span>
+            <span><span data-i18n="prog_check">Progress Check:</span> <span id="st-api" class="status-badge" data-i18n="st_waiting">Waiting...</span></span>
+            <span><span data-i18n="sys_data">System Data:</span> <span id="st-supa" class="status-badge" data-i18n="st_unloaded">Unloaded</span></span>
         </div>
-        
-        <div id="warning-box">⚠️ Trong team có nhân viên chưa phản hồi đổi tuyến. Máy tính đang tự động dùng tuần gần nhất trước đó làm mốc cũ.</div>
+        <div id="warning-box" data-i18n="warn_delay">⚠️ Some staff haven't responded to the route change. Comparing with the previous active week.</div>
     </div>
 
-    <!-- TABS MENU -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-kam', this)">TRACKING BY KAM</button>
-        <button class="tab-btn" onclick="switchTab('tab-team', this)">TRACKING BY SALE TEAM</button>
-        <button class="tab-btn" onclick="switchTab('tab-criteria', this)">THANG ĐÁNH GIÁ</button>
+        <button class="tab-btn active" onclick="switchTab('tab-kam', this)" data-i18n="tab_kam">TRACKING BY KAM</button>
+        <button class="tab-btn" onclick="switchTab('tab-team', this)" data-i18n="tab_team">TRACKING BY SALE TEAM</button>
+        <button class="tab-btn" onclick="switchTab('tab-criteria', this)" data-i18n="tab_crit">EVALUATION CRITERIA</button>
     </div>
 
-    <!-- TAB 1: BY KAM -->
     <div id="tab-kam" class="tab-content active">
-        <h2 style="margin-top:0; color: #1e3a8a;" id="title-kam">Hiệu quả theo KAM: </h2>
+        <h2 style="margin-top:0; color: var(--header-color);" id="title-kam" data-i18n="eff_kam">Overall Efficiency of KAM: </h2>
         <table id="table-kam">
             <thead>
                 <tr>
-                    <th>Item</th>
-                    <th>Old Route</th>
-                    <th>Revise 1st</th>
-                    <th>% Improvement</th>
-                    <th>Evaluate of effectiveness Route</th>
+                    <th data-i18n="item">Item</th>
+                    <th data-i18n="old_route">Old Route</th>
+                    <th data-i18n="rev_1st">Revise 1st</th>
+                    <th data-i18n="pct_imp">% Improvement</th>
+                    <th data-i18n="eval_eff">Evaluate of effectiveness Route</th>
                 </tr>
             </thead>
             <tbody id="tbody-kam">
-                <tr><td colspan="5" style="text-align:center; padding: 20px;">Vui lòng Chọn Quản lý (KAM) và Bấm Tải Dữ Liệu</td></tr>
+                <tr><td colspan="5" style="text-align:center; padding: 20px;" data-i18n="pls_sel_kam">Please Select KAM and Click Load Data</td></tr>
             </tbody>
         </table>
     </div>
 
-    <!-- TAB 2: BY SALE TEAM (ALL KAEs) -->
     <div id="tab-team" class="tab-content" style="background: transparent; box-shadow: none; padding: 0;">
         <div id="team-container">
-            <div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                Vui lòng Chọn Quản lý (KAM) và Bấm Tải Dữ Liệu để xem chi tiết Sale Team
-            </div>
+            <div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;" data-i18n="pls_sel_kam">Please Select KAM and Click Load Data</div>
         </div>
     </div>
 
-    <!-- TAB 3: CRITERIA -->
     <div id="tab-criteria" class="tab-content">
-        <h2 style="margin-top:0; color: #1e3a8a;">THANG ĐÁNH GIÁ ÁP DỤNG</h2>
+        <!-- KHUNG SETTING (ẨN/HIỆN) -->
+        <details class="settings-panel">
+            <summary><span data-i18n="set_title">Settings</span> ⚙️</summary>
+            <div class="settings-content">
+                <div class="set-group">
+                    <label data-i18n="set_lang">Language:</label> 
+                    <button class="set-btn" id="btn-en" onclick="changeLang('en')">EN</button> 
+                    <button class="set-btn" id="btn-vi" onclick="changeLang('vi')">VI</button>
+                </div>
+                <div class="set-group">
+                    <label data-i18n="set_theme">Theme:</label> 
+                    <button class="set-btn active" id="btn-light" onclick="changeTheme('light')" data-i18n="theme_light">Light</button> 
+                    <button class="set-btn" id="btn-dark" onclick="changeTheme('dark')" data-i18n="theme_dark">Dark</button>
+                </div>
+                <div class="set-group">
+                    <label data-i18n="set_font">Font Size:</label> 
+                    <input type="range" id="fontSizeSlider" min="10" max="20" value="13" oninput="changeFontSize(this.value)"> 
+                    <span id="fontValue">13px</span>
+                </div>
+            </div>
+        </details>
+
+        <h2 style="margin-top:0; color: var(--header-color);" data-i18n="crit_applied">APPLIED EVALUATION CRITERIA</h2>
         <table>
             <thead>
-                <tr style="background:#e2e8f0;">
-                    <th>Item</th>
-                    <th class="eval-tot">Tốt</th>
-                    <th class="eval-dat">Đạt</th>
-                    <th class="eval-cai-thien">Cần cải thiện</th>
-                    <th class="eval-khong-hq">Không hiệu quả</th>
+                <tr style="background:var(--badge-bg);">
+                    <th data-i18n="item">Item</th>
+                    <th class="eval-tot" data-i18n="st_good">Good</th>
+                    <th class="eval-dat" data-i18n="st_pass">Pass</th>
+                    <th class="eval-cai-thien" data-i18n="st_imp">Need Improvement</th>
+                    <th class="eval-khong-hq" data-i18n="st_fail">Ineffective</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td>AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td>Compliance Route (%) (Tuyệt đối)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
-                <tr><td>Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td>SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td>Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td>Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td>Sales/ KAE</td><td>&ge; 25%</td><td>&ge; 10%; &lt; 25%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_dist">AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_time">AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_comp">Compliance Route (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
+                <tr><td data-i18n="met_act_pct">Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sku">SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_val">Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sal_cus">Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sal_kae">Sales/ KAE</td><td>&ge; 25%</td><td>&ge; 10%; &lt; 25%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
             </tbody>
         </table>
     </div>
 </div>
+
 <script>
     /* =========================================
-       1. CẤU HÌNH & BIẾN
+       0. TỪ ĐIỂN ĐA NGÔN NGỮ (i18n) & CÀI ĐẶT
+    ========================================= */
+    const dictionary = {
+        en: {
+            app_title: "📊 Tracking Effective & Efficiency Route",
+            area: "Area", sel_area: "-- Select Area --",
+            kam: "Key Account Manager (KAM)", sel_kam: "-- Select KAM --",
+            btn_load: "📥 Load & Calculate Data", btn_loading: "⏳ Calculating data...", btn_reload: "🔄 Refresh Data",
+            prog_check: "Progress Check:", sys_data: "System Data:",
+            st_waiting: "Waiting...", st_ready: "✅ Ready", st_err_api: "❌ API Error",
+            st_unloaded: "Unloaded", st_loading: "Loading & Processing...", st_done: "✅ Done!", st_err_sys: "❌ System Error",
+            warn_delay: "⚠️ Some staff haven't responded to the route change. Comparing with the previous active week.",
+            warn_tag: "⚠️ No Revise schedule",
+            tab_kam: "TRACKING BY KAM", tab_team: "TRACKING BY SALE TEAM", tab_crit: "EVALUATION CRITERIA",
+            eff_kam: "Overall Efficiency of KAM: ", eff_team: "Efficiency by Sale Team: ",
+            pls_sel_kam: "Please Select KAM and Click Load Data",
+            no_staff: "No staff belongs to this KAM.", no_data: "No route data for this staff",
+            staff_lbl: "Staff: ",
+            set_title: "Settings", set_lang: "Language:", set_theme: "Theme:", set_font: "Font Size:",
+            theme_light: "Light", theme_dark: "Dark",
+            crit_applied: "APPLIED EVALUATION CRITERIA",
+            item: "Item", old_route: "Old Route", rev_1st: "Revise 1st", pct_imp: "% Improvement", eval_eff: "Evaluate of effectiveness Route",
+            st_good: "Good", st_pass: "Pass", st_imp: "Need Improvement", st_fail: "Ineffective",
+            met_dist: "AVG distance/ day (Km)", met_time: "AVG service time/ outlet (min)", met_comp: "Compliance Route (%) (Absolute)", 
+            met_act_abs: "Active Outlet (Outlets)", met_act_pct: "Active Outlet (%)", met_sku: "SKU/ invoice", 
+            met_val: "Value/ invoice", met_sal_cus: "Sales/ customers", met_sal_kae: "Sales/ KAE"
+        },
+        vi: {
+            app_title: "📊 Đánh Giá Hiệu Quả & Năng Suất Tuyến",
+            area: "Khu vực (Area)", sel_area: "-- Chọn Khu vực --",
+            kam: "Quản lý (KAM)", sel_kam: "-- Chọn KAM --",
+            btn_load: "📥 Tải & Tính Toán DL", btn_loading: "⏳ Đang tính toán dữ liệu...", btn_reload: "🔄 Làm mới dữ liệu",
+            prog_check: "Kiểm tra tiến độ:", sys_data: "Dữ liệu hệ thống:",
+            st_waiting: "Đang chờ...", st_ready: "✅ Sẵn sàng", st_err_api: "❌ Lỗi Tiến độ",
+            st_unloaded: "Chưa tải", st_loading: "Đang tải & xử lý...", st_done: "✅ Đã xong!", st_err_sys: "❌ Lỗi tải dữ liệu",
+            warn_delay: "⚠️ Trong team có nhân viên chưa phản hồi đổi tuyến. Máy tính dùng tuần gần nhất trước đó làm mốc cũ.",
+            warn_tag: "⚠️ Chưa có lịch Revise",
+            tab_kam: "TRACKING BY KAM", tab_team: "TRACKING BY SALE TEAM", tab_crit: "THANG ĐÁNH GIÁ",
+            eff_kam: "Hiệu quả tổng hợp của KAM: ", eff_team: "Hiệu quả theo Sale Team: ",
+            pls_sel_kam: "Vui lòng Chọn Quản lý (KAM) và Bấm Tải Dữ Liệu",
+            no_staff: "Không có nhân viên nào thuộc KAM này.", no_data: "Không có dữ liệu lộ trình cho nhân viên này",
+            staff_lbl: "Nhân viên: ",
+            set_title: "Cài đặt", set_lang: "Ngôn ngữ:", set_theme: "Giao diện:", set_font: "Cỡ chữ:",
+            theme_light: "Sáng", theme_dark: "Tối",
+            crit_applied: "THANG ĐÁNH GIÁ ÁP DỤNG",
+            item: "Hạng mục", old_route: "Tuyến Cũ", rev_1st: "Tuyến Mới (Revise 1)", pct_imp: "% Cải thiện", eval_eff: "Đánh giá hiệu quả",
+            st_good: "Tốt", st_pass: "Đạt", st_imp: "Cần cải thiện", st_fail: "Không hiệu quả",
+            met_dist: "Khoảng cách TB/ ngày (Km)", met_time: "Thời gian phục vụ TB/ điểm (Phút)", met_comp: "Tuân thủ lộ trình (%) (Tuyệt đối)", 
+            met_act_abs: "Điểm bán hoạt động (Điểm)", met_act_pct: "Điểm bán hoạt động (%)", met_sku: "SKU/ Đơn hàng", 
+            met_val: "Giá trị/ Đơn hàng", met_sal_cus: "Doanh số/ Khách hàng", met_sal_kae: "Doanh số/ KAE"
+        }
+    };
+
+    let currentLang = 'en';
+
+    function t(key) { return dictionary[currentLang][key] || key; }
+
+    function updateLanguageUI() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            let key = el.getAttribute('data-i18n');
+            if (el.tagName === 'INPUT' || el.tagName === 'OPTION') el.innerText = t(key);
+            else el.innerHTML = t(key);
+        });
+        
+        // Active button states
+        document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+        document.getElementById('btn-vi').classList.toggle('active', currentLang === 'vi');
+        
+        if (isDataReady) renderUI(); // Re-render tables to apply language
+    }
+
+    function changeLang(lang) { currentLang = lang; updateLanguageUI(); }
+    
+    function changeTheme(theme) {
+        if (theme === 'dark') document.body.classList.add('dark-mode');
+        else document.body.classList.remove('dark-mode');
+        document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
+        document.getElementById('btn-light').classList.toggle('active', theme === 'light');
+    }
+
+    function changeFontSize(val) {
+        document.body.style.fontSize = val + 'px';
+        document.getElementById('fontValue').innerText = val + 'px';
+    }
+
+
+    /* =========================================
+       1. CẤU HÌNH & BIẾN API / SUPABASE
     ========================================= */
     const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbxhZEBR0Um4GvzHQAAfVmUX9Yy8E7eln_uhbhJJJ5o6plaa6e88GNy7a_nhFg16S2qC0g/exec';
     const SUPABASE_URL = 'https://mrqldgycwovpbmzdeuyz.supabase.co';
@@ -180,22 +291,19 @@
     let precalcKAE = {}, precalcKAM = {};
     let isDataReady = false;
 
-    let idx = { NV: -1, DATE: -1, DAY: -1, IN_OUT: -1, LAT: -1, LNG: -1, T_IN: -1, T_OUT: -1, PO: -1 };
-    let idxDh = { PO: -1, SALES: -1, SKU: -1 };
+    let idx = { NV: 6, DATE: 10, DAY: 11, IN_OUT: 13, T_IN: 19, T_OUT: 20, PO: 22, LAT: 28, LNG: 29 };
+    let idxDh = { PO: 16, SKU: 20, SALES: 34 };
 
-    /* =========================================
-       2. TẢI CẤU HÌNH GOOGLE SHEET
-    ========================================= */
     async function init() {
+        changeLang('en'); // Set default language
         try {
             let res = await fetch(GOOGLE_API_URL);
             apiConfig = await res.json();
-            document.getElementById('st-api').innerText = "✅ API Sẵn sàng";
+            document.getElementById('st-api').innerText = t('st_ready');
             document.getElementById('st-api').style.color = "#16a34a";
             buildFilters();
         } catch (e) {
-            console.error(e);
-            document.getElementById('st-api').innerText = "❌ Lỗi API";
+            document.getElementById('st-api').innerText = t('st_err_api');
         }
     }
 
@@ -204,13 +312,13 @@
         Object.values(apiConfig).forEach(c => { if(c.area) areas.add(c.area); });
         
         let selArea = document.getElementById('sel-area');
-        selArea.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
+        selArea.innerHTML = `<option value="">${t('sel_area')}</option>`;
         [...areas].sort().forEach(a => selArea.innerHTML += `<option value="${a}">${a}</option>`);
 
         selArea.addEventListener('change', () => {
             let a = selArea.value;
             let selKam = document.getElementById('sel-kam');
-            selKam.innerHTML = '<option value="">-- Chọn KAM --</option>';
+            selKam.innerHTML = `<option value="">${t('sel_kam')}</option>`;
             if(!a) { selKam.disabled = true; renderUI(); return; }
             
             let kams = new Set();
@@ -219,86 +327,54 @@
             selKam.disabled = false;
             renderUI(); 
         });
-
         document.getElementById('sel-kam').addEventListener('change', renderUI);
     }
 
-   /* =========================================
-       3. TẢI EXCEL & BẮT CỘT CHUẨN XÁC
-    ========================================= */
     async function loadData() {
         let btn = document.getElementById('btn-load');
-        btn.disabled = true; btn.innerText = "⏳ Đang tính toán dữ liệu...";
-        document.getElementById('st-supa').innerText = "Đang tải & xử lý...";
+        btn.disabled = true; btn.innerText = t('btn_loading');
+        document.getElementById('st-supa').innerText = t('st_loading');
+        document.getElementById('st-supa').style.color = "var(--text-sub)";
         
         try {
             const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
             if (error) throw error;
 
-            // Xử lý file Route (Lộ trình) - Đọc Buffer 1 lần duy nhất
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
-            let bufferRoute = await rRoute.arrayBuffer(); 
-            let wbRoute = XLSX.read(bufferRoute, {type: 'array'});
+            let bRoute = await rRoute.arrayBuffer();
+            let wbRoute = XLSX.read(bRoute, {type: 'array'});
             rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1, defval: ""});
 
-            // Xử lý file Order (Đơn hàng) - Đọc Buffer 1 lần duy nhất
             let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
-            let bufferOrder = await rOrder.arrayBuffer();
-            let wbOrder = XLSX.read(bufferOrder, {type: 'array'});
+            let bOrder = await rOrder.arrayBuffer();
+            let wbOrder = XLSX.read(bOrder, {type: 'array'});
             rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1, defval: ""});
-
-            findColumns();
-            if (idx.NV === -1 || idx.DATE === -1) { 
-                alert("Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày'!"); 
-                return; 
-            }
 
             calculateAllData();
             isDataReady = true;
-            document.getElementById('st-supa').innerText = "✅ Đã tính toán xong!";
+            document.getElementById('st-supa').innerText = t('st_done');
             document.getElementById('st-supa').style.color = "#16a34a";
             renderUI();
         } catch(e) {
-            console.error("Chi tiết lỗi:", e);
-            alert("Lỗi xử lý file Supabase! Vui lòng kiểm tra Console (F12).");
+            console.error(e);
+            alert(t('st_err_sys'));
+            document.getElementById('st-supa').innerText = t('st_err_sys');
+            document.getElementById('st-supa').style.color = "#ef4444";
         } finally {
-            btn.disabled = false; 
-            btn.innerText = "🔄 Làm mới dữ liệu";
+            btn.disabled = false; btn.innerText = t('btn_reload');
         }
     }
 
-   function findColumns() {
-        // 1. Tự động tìm cột cho file Lộ trình (Route) - Vẫn giữ nguyên logic bọc thép
-        let header = Array.from(rawRoute[0] || []).map(h => String(h || '').toLowerCase().trim());
-        let getIdx = (ex, inc, exc=[]) => {
-            let i = header.findIndex(h => ex.includes(h));
-            if(i !== -1) return i;
-            return header.findIndex(h => h.includes(inc) && !exc.some(e => h.includes(e)));
-        };
-
-        idx.NV = getIdx(['tên nhân viên', 'nhân viên', 'nv'], 'nhân viên', ['quản lý', 'mã']);
-        idx.DATE = getIdx(['ngày', 'date'], 'ngày', ['cập nhật']);
-        idx.DAY = getIdx(['thứ', 'day'], 'thứ', ['thứ tự']); 
-        idx.IN_OUT = getIdx(['lộ trình', 'loại tuyến'], 'lộ trình', []);
-        idx.LAT = getIdx(['tọa độ ghé thăm lat', 'lat'], 'lat', ['kết thúc']);
-        idx.LNG = getIdx(['tọa độ ghé thăm lng', 'lng'], 'lng', ['kết thúc']);
-        idx.T_IN = getIdx(['thời gian ghé thăm bắt đầu', 'bắt đầu'], 'bắt đầu', []);
-        idx.T_OUT = getIdx(['thời gian ghé thăm kết thúc', 'kết thúc'], 'kết thúc', ['tọa độ']);
-        idx.PO = getIdx(['danh sách đơn hàng', 'đơn hàng', 'po'], 'đơn hàng', ['mã']);
-
-        // 2. GÁN CHẾT CỘT CHO FILE ĐƠN HÀNG (DH.XLSX) THEO ĐÚNG VỊ TRÍ
-        idxDh.PO = 16;      // Cột D (Index 3)  -> MÃ ĐƠN ĐẶT HÀNG
-        idxDh.SKU = 20;    // Cột U (Index 20) -> MÃ SẢN PHẨM ĐƠN BÁN
-        idxDh.SALES = 34;  // Cột AI (Index 34)-> CHƯA VAT
-        
-        console.log("Đã gán chết cột dh.xlsx:", { PO: 'Cột D', SKU: 'Cột U', SALES: 'Cột AI' });
-    }
-
     /* =========================================
-       4. LOGIC TÍNH TOÁN CORE
+       LOGIC TÍNH TOÁN CORE BỌC THÉP
     ========================================= */
     function cleanName(n) { return String(n || '').trim().toLowerCase().replace(/^(kae|dsr|kam)\s+/g, ''); }
-    function extractNumber(val) { return parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0; }
+    function extractNumber(val) { 
+        if(!val) return 0;
+        if(typeof val === 'number') return val;
+        let str = String(val).replace(/,/g, ''); 
+        return parseFloat(str.replace(/[^0-9.-]+/g, "")) || 0; 
+    }
     
     function parseExcelDate(val) {
         if(!val) return new Date(0);
@@ -322,8 +398,6 @@
     }
 
     function calculateAllData() {
-        let allKaeRaw = {}, allKamRaw = {};
-
         let kams = new Set();
         Object.values(apiConfig).forEach(c => { if(c.kam) kams.add(c.kam); });
         kams.forEach(k => {
@@ -332,6 +406,7 @@
         });
 
         let dataRows = rawRoute.slice(1);
+        let orderRows = rawOrder.slice(1);
 
         Object.keys(apiConfig).forEach(kaeName => {
             let config = apiConfig[kaeName];
@@ -340,12 +415,12 @@
 
             let dataKAE = dataRows.filter(r => cleanName(r[idx.NV]) === kSearch && r[idx.DATE]);
             let reviseSet = dataKAE.filter(r => { let d = parseExcelDate(r[idx.DATE]); return d >= sDate && d <= eDate; });
-            let reviseDays = [...new Set(reviseSet.map(r => String(r[idx.DAY]).trim()))].filter(Boolean);
+            let reviseDays = [...new Set(reviseSet.map(r => String(r[idx.DAY] || '').trim()))].filter(Boolean);
             
             let historicalSet = dataKAE.filter(r => parseExcelDate(r[idx.DATE]) < rDate).reverse();
             let foundDatesForDay = {}; reviseDays.forEach(day => foundDatesForDay[day] = null); 
             for(let row of historicalSet) {
-                let day = String(row[idx.DAY]).trim();
+                let day = String(row[idx.DAY] || '').trim();
                 if(reviseDays.includes(day) && foundDatesForDay[day] === null) foundDatesForDay[day] = row[idx.DATE]; 
             }
             let oldSet = dataKAE.filter(r => Object.values(foundDatesForDay).includes(r[idx.DATE]));
@@ -355,27 +430,26 @@
                 let uniqueDays = new Set(dataset.map(r => r[idx.DATE])).size || 1;
 
                 dataset.forEach((r, i) => {
-                    if(String(r[idx.IN_OUT]).toLowerCase().includes('trong')) inR++;
+                    if(String(r[idx.IN_OUT] || '').toLowerCase().includes('trong') || String(r[idx.IN_OUT] || '').toLowerCase().includes('in')) inR++;
                     let tI = timeToMins(r[idx.T_IN]), tO = timeToMins(r[idx.T_OUT]);
                     if(tO > tI) time += (tO - tI);
                     if(i < dataset.length-1 && r[idx.DATE] === dataset[i+1][idx.DATE]) {
                         dist += getDistance(r[idx.LAT], r[idx.LNG], dataset[i+1][idx.LAT], dataset[i+1][idx.LNG]);
                     }
                     
-                    let poStr = String(r[idx.PO]||'').trim().toUpperCase();
+                    let poStr = String(r[idx.PO] || '').trim().toUpperCase();
                     if(poStr && (poStr.includes('PO') || /[0-9]/.test(poStr))) {
                         let listPo = poStr.split(/[\n,;\s]+/).map(p=>p.trim()).filter(Boolean);
                         poCount += listPo.length; 
                         
                         listPo.forEach(p => {
-                            if(idxDh.PO !== -1) {
-                                // Quét toàn bộ file dh.xlsx để tìm dòng khớp mã PO
-                                rawOrder.filter(o => String(o[idxDh.PO]).trim().toUpperCase() === p).forEach(dh => {
-                                    if(idxDh.SALES !== -1) sales += extractNumber(dh[idxDh.SALES]);
-                                    // Sửa lỗi tính SKU: Mỗi dòng tìm thấy là 1 SKU riêng biệt, cộng thêm 1
-                                    sku += 1;
-                                });
-                            }
+                            orderRows.filter(o => {
+                                let dhPo = String(o[idxDh.PO] || '').trim().toUpperCase();
+                                return dhPo !== '' && (dhPo === p || dhPo.includes(p) || p.includes(dhPo));
+                            }).forEach(dh => {
+                                sales += extractNumber(dh[idxDh.SALES]);
+                                sku += 1;
+                            });
                         });
                     }
                 });
@@ -411,26 +485,26 @@
     }
 
     /* =========================================
-       5. RENDER CHUỖI HTML TỰ ĐỘNG
+       RENDER CHUỖI HTML TỰ ĐỘNG
     ========================================= */
     function getEval(item, imp, revVal) {
         if(item === 'comp') {
-            if(revVal >= 95) return { text: 'Tốt', class: 'eval-tot' };
-            if(revVal >= 85) return { text: 'Đạt', class: 'eval-dat' };
-            if(revVal >= 70) return { text: 'Cần cải thiện', class: 'eval-cai-thien' };
-            return { text: 'Không hiệu quả', class: 'eval-khong-hq' };
+            if(revVal >= 95) return { text: t('st_good'), class: 'eval-tot' };
+            if(revVal >= 85) return { text: t('st_pass'), class: 'eval-dat' };
+            if(revVal >= 70) return { text: t('st_imp'), class: 'eval-cai-thien' };
+            return { text: t('st_fail'), class: 'eval-khong-hq' };
         }
         let checkImp = (item === 'avgDist') ? (-imp) : imp;
-        let t = {
+        let c = {
             avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 }, cov: { t:10, d:3, c:0 }, 
             actAbs: { t:15, d:5, c:0 }, actPct: { t:15, d:5, c:0 }, skuInv: { t:15, d:5, c:0 }, 
             valInv: { t:20, d:10, c:0 }, salCus: { t:20, d:10, c:0 }, salKae: { t:25, d:10, c:0 }
         }[item] || { t:20, d:10, c:0 };
         
-        if(checkImp >= t.t) return { text: 'Tốt', class: 'eval-tot' };
-        if(checkImp >= t.d) return { text: 'Đạt', class: 'eval-dat' };
-        if(checkImp > t.c) return { text: 'Cần cải thiện', class: 'eval-cai-thien' };
-        return { text: 'Không hiệu quả', class: 'eval-khong-hq' };
+        if(checkImp >= c.t) return { text: t('st_good'), class: 'eval-tot' };
+        if(checkImp >= c.d) return { text: t('st_pass'), class: 'eval-dat' };
+        if(checkImp > c.c) return { text: t('st_imp'), class: 'eval-cai-thien' };
+        return { text: t('st_fail'), class: 'eval-khong-hq' };
     }
 
     function formatN(num, isCurr=false) {
@@ -441,11 +515,11 @@
     function genTbodyRows(kpiOld, kpiRev) {
         let html = '';
         let rows = [
-            { key: 'avgDist', label: 'AVG distance/ day (Km)', isCurr: false }, { key: 'avgTime', label: 'AVG service time/ outlet (min)', isCurr: false },
-            { key: 'comp', label: 'Compliance Route (%)', isCurr: false, isPct: true }, { key: 'actAbs', label: 'Active Outlet (Outlets)', isCurr: false },
-            { key: 'actPct', label: 'Active Outlet (%)', isCurr: false, isPct: true }, { key: 'skuInv', label: 'SKU/ invoice', isCurr: false },
-            { key: 'valInv', label: 'Value/ invoice', isCurr: true }, { key: 'salCus', label: 'Sales/ customers', isCurr: true },
-            { key: 'salKae', label: 'Sales/ KAE', isCurr: true }
+            { key: 'avgDist', label: t('met_dist'), isCurr: false }, { key: 'avgTime', label: t('met_time'), isCurr: false },
+            { key: 'comp', label: t('met_comp'), isCurr: false, isPct: true }, { key: 'actAbs', label: t('met_act_abs'), isCurr: false },
+            { key: 'actPct', label: t('met_act_pct'), isCurr: false, isPct: true }, { key: 'skuInv', label: t('met_sku'), isCurr: false },
+            { key: 'valInv', label: t('met_val'), isCurr: true }, { key: 'salCus', label: t('met_sal_cus'), isCurr: true },
+            { key: 'salKae', label: t('met_sal_kae'), isCurr: true }
         ];
 
         rows.forEach(r => {
@@ -455,7 +529,7 @@
             html += `<tr>
                 <td>${r.label}</td>
                 <td class="num-right">${formatN(oldV, r.isCurr) + (r.isPct ? '%' : '')}</td>
-                <td class="num-right" style="font-weight:bold; color:#1e40af;">${formatN(revV, r.isCurr) + (r.isPct ? '%' : '')}</td>
+                <td class="num-right" style="font-weight:bold; color:var(--primary);">${formatN(revV, r.isCurr) + (r.isPct ? '%' : '')}</td>
                 <td class="num-right">${formatN(imp)}%</td>
                 <td class="${evalRes.class}">${evalRes.text}</td>
             </tr>`;
@@ -470,39 +544,46 @@
         let teamContainer = document.getElementById('team-container');
         
         if(!selKam) {
-            kamTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Vui lòng chọn Quản lý (KAM)</td></tr>';
-            teamContainer.innerHTML = '<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">Vui lòng Chọn Quản lý (KAM) để xem chi tiết Sale Team</div>';
+            kamTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">${t('pls_sel_kam')}</td></tr>`;
+            teamContainer.innerHTML = `<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">${t('pls_sel_kam')}</div>`;
             document.getElementById('warning-box').style.display = 'none';
             return;
         }
 
-        // Render KAM Tab
-        document.getElementById('title-kam').innerText = `Hiệu quả tổng hợp của KAM: ${selKam}`;
-        if(precalcKAM[selKam]) kamTbody.innerHTML = genTbodyRows(precalcKAM[selKam].old, precalcKAM[selKam].rev);
+        document.getElementById('title-kam').innerText = `${t('eff_kam')} ${selKam}`;
+        
+        // Fix the undefined header rows issue when switching language by injecting the hardcoded headers dynamically
+        document.getElementById('table-kam').innerHTML = `
+            <thead>
+                <tr>
+                    <th>${t('item')}</th><th>${t('old_route')}</th><th>${t('rev_1st')}</th><th>${t('pct_imp')}</th><th>${t('eval_eff')}</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-kam">
+                ${precalcKAM[selKam] ? genTbodyRows(precalcKAM[selKam].old, precalcKAM[selKam].rev) : ''}
+            </tbody>
+        `;
 
-        // Lấy danh sách KAE thuộc KAM hiện tại
         let kaesInKam = Object.keys(apiConfig).filter(k => apiConfig[k].kam === selKam).sort();
         let teamHTML = '';
         let hasWarning = false;
 
         if(kaesInKam.length === 0) {
-            teamHTML = '<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">Không có nhân viên nào thuộc KAM này.</div>';
+            teamHTML = `<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">${t('no_staff')}</div>`;
         } else {
             kaesInKam.forEach(kae => {
                 if(!apiConfig[kae].hasRevise) hasWarning = true;
                 
                 let kData = precalcKAE[kae];
-                let tbRows = (kData && kData.hasData) ? genTbodyRows(kData.old, kData.rev) : '<tr><td colspan="5" style="text-align:center; padding:20px;">Không có dữ liệu lộ trình cho nhân viên này</td></tr>';
-                let warnTag = !apiConfig[kae].hasRevise ? '<span class="kae-warning">⚠️ Chưa có lịch Revise</span>' : '';
+                let tbRows = (kData && kData.hasData) ? genTbodyRows(kData.old, kData.rev) : `<tr><td colspan="5" style="text-align:center; padding:20px;">${t('no_data')}</td></tr>`;
+                let warnTag = !apiConfig[kae].hasRevise ? `<span class="kae-warning">${t('warn_tag')}</span>` : '';
 
                 teamHTML += `
                     <div class="kae-card">
-                        <h3>Nhân viên: ${kae} ${warnTag}</h3>
+                        <h3>${t('staff_lbl')} ${kae} ${warnTag}</h3>
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Item</th><th>Old Route</th><th>Revise 1st</th><th>% Improvement</th><th>Evaluate of effectiveness Route</th>
-                                </tr>
+                                <tr><th>${t('item')}</th><th>${t('old_route')}</th><th>${t('rev_1st')}</th><th>${t('pct_imp')}</th><th>${t('eval_eff')}</th></tr>
                             </thead>
                             <tbody>${tbRows}</tbody>
                         </table>
@@ -510,7 +591,6 @@
                 `;
             });
         }
-        
         teamContainer.innerHTML = teamHTML;
         document.getElementById('warning-box').style.display = hasWarning ? 'block' : 'none';
     }
