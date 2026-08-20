@@ -14,16 +14,18 @@
             --bg-color: #f1f5f9; --primary: #3b82f6; --primary-hover: #2563eb; --border: #cbd5e1;
             --text-main: #0f172a; --text-sub: #475569; --white: #ffffff;
             --color-tot: #22c55e; --color-dat: #86efac; --color-cai-thien: #fef08a; --color-khong-hq: #fca5a5;
-            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.05);
             --badge-bg: #e2e8f0; --warning-bg: #fff7ed; --warning-border: #f97316;
             --header-color: #1e3a8a; --table-header: #f8fafc;
+            --radius-lg: 20px; /* Bo góc mượt kiểu Superellipse */
+            --radius-md: 12px;
         }
 
         body.dark-mode {
             --bg-color: #0f172a; --primary: #3b82f6; --primary-hover: #60a5fa; --border: #334155;
             --text-main: #f8fafc; --text-sub: #94a3b8; --white: #1e293b;
             --color-tot: #16a34a; --color-dat: #4ade80; --color-cai-thien: #facc15; --color-khong-hq: #ef4444;
-            --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --card-shadow: 0 8px 16px rgba(0,0,0,0.2);
             --badge-bg: #334155; --warning-bg: #451a03; --warning-border: #ea580c;
             --header-color: #38bdf8; --table-header: #0f172a;
         }
@@ -31,38 +33,42 @@
         body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); font-size: 13px; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         
-        .header { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: var(--card-shadow); margin-bottom: 20px; transition: 0.3s; }
-        .header h1 { margin: 0 0 15px 0; font-size: 1.5em; color: var(--header-color); text-transform: uppercase; }
+        .header { background: var(--white); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); margin-bottom: 24px; transition: 0.3s; }
+        .header h1 { margin: 0 0 15px 0; font-size: 1.5em; color: var(--header-color); text-transform: uppercase; font-weight: 700; letter-spacing: -0.5px;}
         
         .filters { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
         .filter-group { display: flex; flex-direction: column; min-width: 220px; }
-        .filter-group label { font-weight: 600; margin-bottom: 5px; color: var(--text-sub); }
-        .filter-group select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 1em; background: var(--white); color: var(--text-main); }
+        .filter-group label { font-weight: 600; margin-bottom: 6px; color: var(--text-sub); }
+        .filter-group select { padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; font-size: 1em; background: var(--white); color: var(--text-main); transition: 0.2s;}
+        .filter-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         
-        .btn-action { padding: 10px 20px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: auto; transition: 0.2s;}
-        .btn-action:hover { background: var(--primary-hover); }
-        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-action { padding: 12px 24px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s;}
+        .btn-action:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-action:active { transform: translateY(0); }
+        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
         
         #status-bar { margin-top: 15px; font-size: 1em; color: var(--text-sub); display: flex; gap: 20px; }
-        .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 4px; background: var(--badge-bg); }
-        #warning-box { display: none; margin-top: 15px; padding: 10px; background: var(--warning-bg); border-left: 4px solid var(--warning-border); color: var(--warning-border); font-weight: 600; border-radius: 4px; }
+        .status-badge { font-weight: bold; padding: 4px 10px; border-radius: 6px; background: var(--badge-bg); transition: 0.3s;}
+        #warning-box { display: none; margin-top: 15px; padding: 12px 16px; background: var(--warning-bg); border-left: 4px solid var(--warning-border); color: var(--warning-border); font-weight: 600; border-radius: var(--radius-md); }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
-        .tab-btn { padding: 12px 20px; background: transparent; border: none; font-weight: 600; font-size: 1.1em; color: var(--text-sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-btn { padding: 12px 20px; background: transparent; border: none; font-weight: 600; font-size: 1.1em; color: var(--text-sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.2s;}
         .tab-btn:hover { color: var(--primary); }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         
-        .tab-content { display: none; background: var(--white); padding: 25px; border-radius: 8px; box-shadow: var(--card-shadow); overflow-x: auto; transition: 0.3s; }
+        .tab-content { display: none; background: var(--white); padding: 25px; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); overflow-x: auto; transition: 0.3s; }
         .tab-content.active { display: block; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; font-size: 1em; }
-        th, td { border: 1px solid var(--border); padding: 12px; text-align: center; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; min-width: 800px; font-size: 1em; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+        th, td { padding: 14px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+        th:last-child, td:last-child { border-right: none; }
+        tr:last-child td { border-bottom: none; }
         th { background: var(--table-header); font-weight: 700; color: var(--text-main); position: sticky; top: 0; }
         td:first-child { text-align: left; font-weight: 600; background: var(--table-header); width: 25%; }
         
-        .kae-card { background: var(--white); border: 2px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: var(--card-shadow); }
-        .kae-card h3 { margin: 0 0 15px 0; color: var(--header-color); font-size: 1.2em; border-bottom: 2px solid var(--border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .kae-warning { color: #dc2626; font-size: 0.9em; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-weight: 600;}
+        .kae-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 30px; box-shadow: var(--card-shadow); transition: 0.3s;}
+        .kae-card h3 { margin: 0 0 18px 0; color: var(--header-color); font-size: 1.2em; border-bottom: 2px solid var(--border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .kae-warning { color: #dc2626; font-size: 0.9em; background: #fee2e2; padding: 6px 10px; border-radius: var(--radius-md); font-weight: 600;}
 
         .eval-tot { background-color: var(--color-tot) !important; color: #fff; font-weight: bold; }
         .eval-dat { background-color: var(--color-dat) !important; color: #064e3b; font-weight: bold; }
@@ -70,21 +76,21 @@
         .eval-khong-hq { background-color: var(--color-khong-hq) !important; color: #450a0a; font-weight: bold; }
         .num-right { text-align: right; }
 
-        .settings-panel { background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; transition: 0.3s; }
+        .settings-panel { background: var(--bg-color); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 15px 20px; margin-bottom: 20px; transition: 0.3s; }
         .settings-panel summary { font-weight: 700; font-size: 1.1em; cursor: pointer; user-select: none; color: var(--primary); outline: none; }
         .settings-content { display: flex; gap: 30px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
         .set-group { display: flex; align-items: center; gap: 10px; font-weight: 500; }
-        .set-btn { padding: 6px 12px; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-main); border-radius: 4px; font-weight: 600; transition: 0.2s; }
+        .set-btn { padding: 8px 14px; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-main); border-radius: var(--radius-md); font-weight: 600; transition: 0.2s; }
         .set-btn:hover { background: var(--badge-bg); }
         .set-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         input[type="range"] { cursor: pointer; }
     </style>
 </head>
-<body>
+<body class="dark-mode"> <!-- MẶC ĐỊNH LÀ DARK THEME -->
 
 <div class="container">
     <div class="header">
-        <h1 data-i18n="app_title">📊 Tracking Effective & Efficiency Route</h1>
+        <h1 data-i18n="app_title">Tracking Effective & Efficiency Route</h1> <!-- ĐÃ BỎ ICON -->
         <div class="filters">
             <div class="filter-group">
                 <label data-i18n="area">Area</label>
@@ -100,12 +106,13 @@
                     <option value="latest" data-i18n="rev_latest">Latest Revise</option>
                 </select>
             </div>
-            <button id="btn-load" class="btn-action" onclick="loadData()" data-i18n="btn_load">📥 Load Data</button>
+            <button id="btn-load" class="btn-action" onclick="loadData()" data-i18n="btn_load">Load Data</button>
         </div>
         
         <div id="status-bar">
-            <span><span data-i18n="prog_check">Progress Check:</span> <span id="st-api" class="status-badge" data-i18n="st_waiting">Waiting...</span></span>
-            <span><span data-i18n="sys_data">System Data:</span> <span id="st-supa" class="status-badge" data-i18n="st_unloaded">Unloaded</span></span>
+            <!-- ĐÃ GỠ BỎ DATA-I18N Ở CÁC THẺ SPAN NÀY ĐỂ TRÁNH RESET TRẠNG THÁI -->
+            <span><span data-i18n="prog_check">Progress Check:</span> <span id="st-api" class="status-badge">Waiting...</span></span>
+            <span><span data-i18n="sys_data">System Data:</span> <span id="st-supa" class="status-badge">Unloaded</span></span>
         </div>
         <div id="warning-box" data-i18n="warn_delay">⚠️ Missing data for some staffs in this period. Data might be saved offline due to system optimization.</div>
     </div>
@@ -136,7 +143,7 @@
 
     <div id="tab-team" class="tab-content" style="background: transparent; box-shadow: none; padding: 0;">
         <div id="team-container">
-            <div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;" data-i18n="pls_sel_kam">Please Select KAM and Click Load Data</div>
+            <div style="background: var(--white); padding: 20px; border-radius: var(--radius-lg); text-align:center;" data-i18n="pls_sel_kam">Please Select KAM and Click Load Data</div>
         </div>
     </div>
 
@@ -151,8 +158,9 @@
                 </div>
                 <div class="set-group">
                     <label data-i18n="set_theme">Theme:</label> 
-                    <button class="set-btn active" id="btn-light" onclick="changeTheme('light')" data-i18n="theme_light">Light</button> 
-                    <button class="set-btn" id="btn-dark" onclick="changeTheme('dark')" data-i18n="theme_dark">Dark</button>
+                    <button class="set-btn" id="btn-light" onclick="changeTheme('light')" data-i18n="theme_light">Light</button> 
+                    <!-- ĐẶT DARK THEME LÀ ACTIVE MẶC ĐỊNH -->
+                    <button class="set-btn active" id="btn-dark" onclick="changeTheme('dark')" data-i18n="theme_dark">Dark</button>
                 </div>
                 <div class="set-group">
                     <label data-i18n="set_font">Font Size:</label> 
@@ -191,11 +199,11 @@
 <script>
     const dictionary = {
         en: {
-            app_title: "📊 Tracking Effective & Efficiency Route",
+            app_title: "Tracking Effective & Efficiency Route",
             area: "Area", sel_area: "-- Select Area --",
             kam: "Key Account Manager (KAM)", sel_kam: "-- Select KAM --",
             rev_period: "Revise Period", rev_latest: "Latest Revise", rev_opt: "Revise",
-            btn_load: "📥 Load Data", btn_loading: "⏳ Loading...", btn_reload: "🔄 Refresh Data",
+            btn_load: "Load Data", btn_loading: "Loading...", btn_reload: "Refresh Data",
             prog_check: "Progress Check:", sys_data: "System Data:",
             st_waiting: "Waiting...", st_ready: "✅ Ready", st_err_api: "❌ API Error",
             st_unloaded: "Unloaded", st_loading: "Loading & Processing...", st_done: "✅ Done!", st_err_sys: "❌ System Error",
@@ -219,11 +227,11 @@
             met_val: "AVG Value / Invoice", met_sal_cus: "Sales/ customers", met_sal_kae: "Sales/ KAE"
         },
         vi: {
-            app_title: "📊 Đánh Giá Hiệu Quả & Năng Suất Tuyến",
+            app_title: "Đánh Giá Hiệu Quả & Năng Suất Tuyến",
             area: "Khu vực (Area)", sel_area: "-- Chọn Khu vực --",
             kam: "Quản lý (KAM)", sel_kam: "-- Chọn KAM --",
             rev_period: "Kỳ đánh giá (Revise)", rev_latest: "Revise Mới Nhất", rev_opt: "Revise đợt",
-            btn_load: "📥 Tải Dữ Liệu", btn_loading: "⏳ Đang tải...", btn_reload: "🔄 Làm mới dữ liệu",
+            btn_load: "Tải Dữ Liệu", btn_loading: "Đang tải...", btn_reload: "Làm mới dữ liệu",
             prog_check: "Kiểm tra tiến độ:", sys_data: "Dữ liệu hệ thống:",
             st_waiting: "Đang chờ...", st_ready: "✅ Sẵn sàng", st_err_api: "❌ Lỗi API",
             st_unloaded: "Chưa tải", st_loading: "Đang tải & xử lý...", st_done: "✅ Đã xong!", st_err_sys: "❌ Lỗi tải dữ liệu",
@@ -249,6 +257,10 @@
     };
 
     let currentLang = 'en';
+    // BIẾN LƯU TRẠNG THÁI HIỆN TẠI ĐỂ KHÔNG BỊ RESET KHI ĐỔI NGÔN NGỮ
+    let currentApiStatus = 'st_waiting';
+    let currentSupaStatus = 'st_unloaded';
+    let currentBtnLoad = 'btn_load';
 
     function t(key) { return dictionary[currentLang][key] || key; }
 
@@ -259,6 +271,11 @@
             else el.innerHTML = t(key);
         });
         
+        // Cập nhật lại chính xác trạng thái hiện hành thay vì reset về mặc định
+        document.getElementById('st-api').innerText = t(currentApiStatus);
+        document.getElementById('st-supa').innerText = t(currentSupaStatus);
+        document.getElementById('btn-load').innerText = t(currentBtnLoad);
+
         document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
         document.getElementById('btn-vi').classList.toggle('active', currentLang === 'vi');
         
@@ -298,7 +315,6 @@
     let precalcKAE = {}, precalcKAM = {};
     let isDataReady = false;
 
-    // NẠP THÊM CỌT MÃ KHÁCH HÀNG (CUS) LÀ INDEX 14 (TƯƠNG ĐƯƠNG CỘT O)
     let idx = { NV: 6, DATE: 10, DAY: 11, IN_OUT: 13, CUS: 14, T_IN: 19, T_OUT: 20, PO: 22, LAT: 28, LNG: 29 };
     let idxDh = { PO: 0, SKU: 1, SALES: 2 }; 
 
@@ -307,11 +323,15 @@
         try {
             let res = await fetch(GOOGLE_API_URL);
             apiConfig = await res.json();
-            document.getElementById('st-api').innerText = t('st_ready');
+            
+            currentApiStatus = 'st_ready';
+            document.getElementById('st-api').innerText = t(currentApiStatus);
             document.getElementById('st-api').style.color = "#16a34a";
+            
             buildFilters();
         } catch (e) {
-            document.getElementById('st-api').innerText = t('st_err_api');
+            currentApiStatus = 'st_err_api';
+            document.getElementById('st-api').innerText = t(currentApiStatus);
         }
     }
 
@@ -351,8 +371,12 @@
 
     async function loadData() {
         let btn = document.getElementById('btn-load');
-        btn.disabled = true; btn.innerText = t('btn_loading');
-        document.getElementById('st-supa').innerText = t('st_loading');
+        btn.disabled = true; 
+        currentBtnLoad = 'btn_loading';
+        btn.innerText = t(currentBtnLoad);
+        
+        currentSupaStatus = 'st_loading';
+        document.getElementById('st-supa').innerText = t(currentSupaStatus);
         document.getElementById('st-supa').style.color = "var(--text-sub)";
         
         try {
@@ -371,15 +395,19 @@
 
             recalculateKPIs();
             
-            document.getElementById('st-supa').innerText = t('st_done');
+            currentSupaStatus = 'st_done';
+            document.getElementById('st-supa').innerText = t(currentSupaStatus);
             document.getElementById('st-supa').style.color = "#16a34a";
         } catch(e) {
             console.error(e);
             alert(t('st_err_sys'));
-            document.getElementById('st-supa').innerText = t('st_err_sys');
+            currentSupaStatus = 'st_err_sys';
+            document.getElementById('st-supa').innerText = t(currentSupaStatus);
             document.getElementById('st-supa').style.color = "#ef4444";
         } finally {
-            btn.disabled = false; btn.innerText = t('btn_reload');
+            btn.disabled = false; 
+            currentBtnLoad = 'btn_reload';
+            btn.innerText = t(currentBtnLoad);
         }
     }
 
@@ -507,8 +535,6 @@
                 let dist = 0, time = 0, out = sorted.length, inR = 0, poCount = 0, sales = 0, sku = 0;
                 let uniqueDays = new Set(sorted.map(r => toYYYYMMDD(r[idx.DATE]))).size || 1;
                 let claimedOrders = new Set();
-                
-                // MẢNG ĐẾM DISTINCT COUNT KHÁCH HÀNG
                 let visitedCus = new Set();
                 let activeCus = new Set();
 
@@ -516,7 +542,6 @@
                     let inOutVal = String(r[idx.IN_OUT] || '').trim().toLowerCase();
                     if (inOutVal.includes('trong') || inOutVal === 'in' || inOutVal.startsWith('in ')) inR++;
 
-                    // Lưu vào danh sách đã ghé thăm
                     let cusCode = String(r[idx.CUS] || '').trim();
                     if (cusCode) visitedCus.add(cusCode);
 
@@ -549,7 +574,6 @@
                             });
                         });
 
-                        // Nếu tìm thấy đơn hàng hợp lệ, tăng PO và ghim khách hàng này là Active
                         if (hasValidOrder || listPo.length > 0) {
                             poCount += listPo.length;
                             if (cusCode) activeCus.add(cusCode);
@@ -569,7 +593,6 @@
             if(config.kam && allKamRaw[config.kam] && allKaeRaw[kaeName].hasData) {
                 if(oldRaw.out > 0) allKamRaw[config.kam].old.kaeCount += 1; 
                 if(revRaw.out > 0) allKamRaw[config.kam].rev.kaeCount += 1;
-                // Cộng dồn các chỉ số Distinct Count lên cho KAM
                 ['dist','time','out','inR','poCount','sales','sku','visCus','actCus'].forEach(k => {
                     allKamRaw[config.kam].old[k] += oldRaw[k]; allKamRaw[config.kam].rev[k] += revRaw[k];
                 });
@@ -584,14 +607,9 @@
                 avgDist: raw.dist / raw.days, 
                 avgTime: raw.time / raw.out, 
                 comp: (raw.inR / raw.out) * 100, 
-                
-                // MỚI: Distinct Count Điểm bán HĐ (Thay vì đếm số đơn PO như cũ)
                 actAbs: raw.actCus, 
-                // MỚI: Tỷ lệ so với Tổng lượt viếng thăm
                 actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0, 
-                // MỚI: Tỷ lệ so với Tập khách hàng đã đi
                 actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, 
-                
                 skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
                 valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0, 
                 salCus: raw.sales / raw.out, 
@@ -615,7 +633,6 @@
         }
         let checkImp = (item === 'avgDist') ? (-imp) : imp;
         
-        // Cả 2 tỷ lệ % mới đều dùng chung định mức t:15, d:5
         let c = {
             avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 }, 
             actAbs: { t:15, d:5, c:0 }, 
@@ -674,7 +691,7 @@
         
         if(!selKam) {
             kamTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">${t('pls_sel_kam')}</td></tr>`;
-            teamContainer.innerHTML = `<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">${t('pls_sel_kam')}</div>`;
+            teamContainer.innerHTML = `<div style="background: var(--white); padding: 20px; border-radius: var(--radius-lg); text-align:center;">${t('pls_sel_kam')}</div>`;
             document.getElementById('warning-box').style.display = 'none';
             return;
         }
@@ -697,7 +714,7 @@
         let hasWarning = false;
 
         if(kaesInKam.length === 0) {
-            teamHTML = `<div style="background: var(--white); padding: 20px; border-radius: 8px; text-align:center;">${t('no_staff')}</div>`;
+            teamHTML = `<div style="background: var(--white); padding: 20px; border-radius: var(--radius-lg); text-align:center;">${t('no_staff')}</div>`;
         } else {
             kaesInKam.forEach(kae => {
                 let kData = precalcKAE[kae];
