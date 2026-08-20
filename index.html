@@ -290,10 +290,11 @@ const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls(
         }
     }
 
-    function findColumns() {
-        // Tự động tìm cột bằng từ khóa
-        let header = rawRoute[0].map(h => String(h).toLowerCase());
-        idx.NV = header.findIndex(h => h.includes('nhân viên') || h.includes('kae'));
+   function findColumns() {
+        // Dùng Array.from và h || '' để xử lý triệt để các ô trống (undefined) trong Excel
+        let header = Array.from(rawRoute[0] || []).map(h => String(h || '').toLowerCase());
+        
+        idx.NV = header.findIndex(h => h.includes('nhân viên') || h.includes('kae') || h.includes('nhân viên quản lý'));
         idx.DATE = header.findIndex(h => h.includes('ngày') || h.includes('date'));
         idx.DAY = header.findIndex(h => h.includes('thứ'));
         idx.IN_OUT = header.findIndex(h => h.includes('lộ trình') || h.includes('tuyến'));
@@ -303,7 +304,7 @@ const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls(
         idx.T_OUT = header.findIndex(h => h.includes('kết thúc'));
         idx.PO = header.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
 
-        let hDh = rawOrder[0].map(h => String(h).toLowerCase());
+        let hDh = Array.from(rawOrder[0] || []).map(h => String(h || '').toLowerCase());
         idxDh.PO = hDh.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
         idxDh.SALES = hDh.findIndex(h => h.includes('tiền') || h.includes('doanh số'));
         idxDh.SKU = hDh.findIndex(h => h.includes('sku') || h.includes('mã hàng'));
