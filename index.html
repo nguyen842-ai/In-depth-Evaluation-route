@@ -177,7 +177,8 @@
                 <tr><td data-i18n="met_dist">AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_time">AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_comp">Compliance Route (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
-                <tr><td data-i18n="met_act_pct">Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_act_pct_visit">Active Outlet/ Visits (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_act_pct_cov">Active Outlet/ Customers (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_sku">SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_val">Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_sal_cus">Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
@@ -211,8 +212,11 @@
             item: "Item", old_route: "Old Route", rev_1st: "Revise Route", pct_imp: "% Improvement", eval_eff: "Evaluate of effectiveness Route",
             st_good: "Good", st_pass: "Pass", st_imp: "Need Improvement", st_fail: "Ineffective",
             met_dist: "AVG distance/ day (Km)", met_time: "AVG service time/ outlet (min)", met_comp: "Compliance Route (%) (Absolute)", 
-            met_act_abs: "Active Outlet (Outlets)", met_act_pct: "Active Outlet (%)", met_sku: "SKU/ invoice", 
-            met_val: "Value/ invoice", met_sal_cus: "Sales/ customers", met_sal_kae: "Sales/ KAE"
+            met_act_abs: "Active Outlet (Outlets)", 
+            met_act_pct_visit: "Active Outlet / Total Visits (%)", 
+            met_act_pct_cov: "Active Outlet / Visited Outlets (%)", 
+            met_sku: "AVG SKU / Invoice", 
+            met_val: "AVG Value / Invoice", met_sal_cus: "Sales/ customers", met_sal_kae: "Sales/ KAE"
         },
         vi: {
             app_title: "📊 Đánh Giá Hiệu Quả & Năng Suất Tuyến",
@@ -236,8 +240,11 @@
             item: "Hạng mục", old_route: "Tuyến Cũ", rev_1st: "Tuyến Mới (Revise)", pct_imp: "% Cải thiện", eval_eff: "Đánh giá hiệu quả",
             st_good: "Tốt", st_pass: "Đạt", st_imp: "Cần cải thiện", st_fail: "Không hiệu quả",
             met_dist: "Khoảng cách TB/ ngày (Km)", met_time: "Thời gian phục vụ TB/ điểm (Phút)", met_comp: "Tuân thủ lộ trình (%) (Tuyệt đối)", 
-            met_act_abs: "Điểm bán hoạt động (Điểm)", met_act_pct: "Điểm bán hoạt động (%)", met_sku: "SKU/ Đơn hàng", 
-            met_val: "Giá trị/ Đơn hàng", met_sal_cus: "Doanh số/ Khách hàng", met_sal_kae: "Doanh số/ KAE"
+            met_act_abs: "Điểm bán hoạt động (Điểm)", 
+            met_act_pct_visit: "Điểm bán HĐ / Lượt ghé thăm (%)", 
+            met_act_pct_cov: "Điểm bán HĐ / Khách ghé thăm (%)", 
+            met_sku: "AVG SKU / Đơn", 
+            met_val: "AVG Giá trị / Đơn", met_sal_cus: "Doanh số/ Khách hàng", met_sal_kae: "Doanh số/ KAE"
         }
     };
 
@@ -291,8 +298,8 @@
     let precalcKAE = {}, precalcKAM = {};
     let isDataReady = false;
 
-    let idx = { NV: 6, DATE: 10, DAY: 11, IN_OUT: 13, T_IN: 19, T_OUT: 20, PO: 22, LAT: 28, LNG: 29 };
-    // TRẢ LẠI CHÍNH XÁC INDEX: PO Cột A(0), SKU Cột B(1), Doanh Số Cột C(2)
+    // NẠP THÊM CỌT MÃ KHÁCH HÀNG (CUS) LÀ INDEX 14 (TƯƠNG ĐƯƠNG CỘT O)
+    let idx = { NV: 6, DATE: 10, DAY: 11, IN_OUT: 13, CUS: 14, T_IN: 19, T_OUT: 20, PO: 22, LAT: 28, LNG: 29 };
     let idxDh = { PO: 0, SKU: 1, SALES: 2 }; 
 
     async function init() {
@@ -436,8 +443,8 @@
         let kams = new Set();
         Object.values(apiConfig).forEach(c => { if(c.kam) kams.add(c.kam); });
         kams.forEach(k => {
-            allKamRaw[k] = { old: { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, kaeCount: 0 },
-                             rev: { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, kaeCount: 0 } };
+            allKamRaw[k] = { old: { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, kaeCount:0, visCus:0, actCus:0 },
+                             rev: { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, kaeCount:0, visCus:0, actCus:0 } };
         });
 
         let dataRows = rawRoute.slice(1);
@@ -473,8 +480,8 @@
 
             if (!isValidRevise || !targetRev) {
                 allKaeRaw[kaeName] = { 
-                    old: {days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0}, 
-                    rev: {days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0}, 
+                    old: {days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, visCus:0, actCus:0}, 
+                    rev: {days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0, visCus:0, actCus:0}, 
                     hasData: false
                 };
                 return;
@@ -500,10 +507,18 @@
                 let dist = 0, time = 0, out = sorted.length, inR = 0, poCount = 0, sales = 0, sku = 0;
                 let uniqueDays = new Set(sorted.map(r => toYYYYMMDD(r[idx.DATE]))).size || 1;
                 let claimedOrders = new Set();
+                
+                // MẢNG ĐẾM DISTINCT COUNT KHÁCH HÀNG
+                let visitedCus = new Set();
+                let activeCus = new Set();
 
                 sorted.forEach((r, i) => {
                     let inOutVal = String(r[idx.IN_OUT] || '').trim().toLowerCase();
                     if (inOutVal.includes('trong') || inOutVal === 'in' || inOutVal.startsWith('in ')) inR++;
+
+                    // Lưu vào danh sách đã ghé thăm
+                    let cusCode = String(r[idx.CUS] || '').trim();
+                    if (cusCode) visitedCus.add(cusCode);
 
                     let tI = timeToMins(r[idx.T_IN]), tO = timeToMins(r[idx.T_OUT]);
                     if(tO > tI) time += (tO - tI);
@@ -514,8 +529,8 @@
                     let poStr = String(r[idx.PO] || '').trim().toUpperCase();
                     if(poStr && (poStr.includes('PO') || /[0-9]/.test(poStr))) {
                         let listPo = poStr.split(/[\n,;\s]+/).map(p=>p.trim()).filter(Boolean);
-                        poCount += listPo.length; 
-                        
+                        let hasValidOrder = false;
+
                         listPo.forEach(p => {
                             let matches = orderIndex.get(p);
                             if (!matches || matches.length === 0) {
@@ -524,17 +539,24 @@
                                     if (key.includes(p) || p.includes(key)) matches.push(...rows);
                                 }
                             }
+                            if (matches && matches.length > 0) hasValidOrder = true;
+
                             matches.forEach(dh => {
                                 if (claimedOrders.has(dh)) return; 
                                 claimedOrders.add(dh);
                                 sales += extractNumber(dh[idxDh.SALES]);
-                                // KHÔI PHỤC LOGIC GỐC: Đếm số dòng (row) là số lượng mặt hàng (SKU)
                                 sku += 1; 
                             });
                         });
+
+                        // Nếu tìm thấy đơn hàng hợp lệ, tăng PO và ghim khách hàng này là Active
+                        if (hasValidOrder || listPo.length > 0) {
+                            poCount += listPo.length;
+                            if (cusCode) activeCus.add(cusCode);
+                        }
                     }
                 });
-                return { days: uniqueDays, dist, time, out, inR, poCount, sales, sku };
+                return { days: uniqueDays, dist, time, out, inR, poCount, sales, sku, visCus: visitedCus.size, actCus: activeCus.size };
             };
 
             let oldRaw = compileSet(oldSet), revRaw = compileSet(reviseSet);
@@ -547,7 +569,8 @@
             if(config.kam && allKamRaw[config.kam] && allKaeRaw[kaeName].hasData) {
                 if(oldRaw.out > 0) allKamRaw[config.kam].old.kaeCount += 1; 
                 if(revRaw.out > 0) allKamRaw[config.kam].rev.kaeCount += 1;
-                ['dist','time','out','inR','poCount','sales','sku'].forEach(k => {
+                // Cộng dồn các chỉ số Distinct Count lên cho KAM
+                ['dist','time','out','inR','poCount','sales','sku','visCus','actCus'].forEach(k => {
                     allKamRaw[config.kam].old[k] += oldRaw[k]; allKamRaw[config.kam].rev[k] += revRaw[k];
                 });
                 allKamRaw[config.kam].old.days = Math.max(allKamRaw[config.kam].old.days, oldRaw.days);
@@ -556,11 +579,22 @@
         });
 
         const toKPI = (raw, isKam = false) => {
-            if(raw.out === 0) return { avgDist:0, avgTime:0, comp:0, cov:0, actAbs:0, actPct:0, skuInv:0, valInv:0, salCus:0, salKae:0 };
+            if(raw.out === 0) return { avgDist:0, avgTime:0, comp:0, actAbs:0, actPctVisit:0, actPctCov:0, skuInv:0, valInv:0, salCus:0, salKae:0 };
             return {
-                avgDist: raw.dist / raw.days, avgTime: raw.time / raw.out, comp: (raw.inR / raw.out) * 100, cov: raw.out, 
-                actAbs: raw.poCount, actPct: (raw.poCount / raw.out) * 100, skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
-                valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0, salCus: raw.sales / raw.out, 
+                avgDist: raw.dist / raw.days, 
+                avgTime: raw.time / raw.out, 
+                comp: (raw.inR / raw.out) * 100, 
+                
+                // MỚI: Distinct Count Điểm bán HĐ (Thay vì đếm số đơn PO như cũ)
+                actAbs: raw.actCus, 
+                // MỚI: Tỷ lệ so với Tổng lượt viếng thăm
+                actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0, 
+                // MỚI: Tỷ lệ so với Tập khách hàng đã đi
+                actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, 
+                
+                skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
+                valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0, 
+                salCus: raw.sales / raw.out, 
                 salKae: isKam ? (raw.kaeCount > 0 ? (raw.sales / raw.kaeCount) : 0) : raw.sales
             };
         };
@@ -580,9 +614,14 @@
             return { text: t('st_fail'), class: 'eval-khong-hq' };
         }
         let checkImp = (item === 'avgDist') ? (-imp) : imp;
+        
+        // Cả 2 tỷ lệ % mới đều dùng chung định mức t:15, d:5
         let c = {
-            avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 }, cov: { t:10, d:3, c:0 }, 
-            actAbs: { t:15, d:5, c:0 }, actPct: { t:15, d:5, c:0 }, skuInv: { t:15, d:5, c:0 }, 
+            avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 }, 
+            actAbs: { t:15, d:5, c:0 }, 
+            actPctVisit: { t:15, d:5, c:0 }, 
+            actPctCov: { t:15, d:5, c:0 }, 
+            skuInv: { t:15, d:5, c:0 }, 
             valInv: { t:20, d:10, c:0 }, salCus: { t:20, d:10, c:0 }, salKae: { t:25, d:10, c:0 }
         }[item] || { t:20, d:10, c:0 };
         
@@ -600,10 +639,15 @@
     function genTbodyRows(kpiOld, kpiRev) {
         let html = '';
         let rows = [
-            { key: 'avgDist', label: t('met_dist'), isCurr: false }, { key: 'avgTime', label: t('met_time'), isCurr: false },
-            { key: 'comp', label: t('met_comp'), isCurr: false, isPct: true }, { key: 'actAbs', label: t('met_act_abs'), isCurr: false },
-            { key: 'actPct', label: t('met_act_pct'), isCurr: false, isPct: true }, { key: 'skuInv', label: t('met_sku'), isCurr: false },
-            { key: 'valInv', label: t('met_val'), isCurr: true }, { key: 'salCus', label: t('met_sal_cus'), isCurr: true },
+            { key: 'avgDist', label: t('met_dist'), isCurr: false }, 
+            { key: 'avgTime', label: t('met_time'), isCurr: false },
+            { key: 'comp', label: t('met_comp'), isCurr: false, isPct: true }, 
+            { key: 'actAbs', label: t('met_act_abs'), isCurr: false },
+            { key: 'actPctVisit', label: t('met_act_pct_visit'), isCurr: false, isPct: true }, 
+            { key: 'actPctCov', label: t('met_act_pct_cov'), isCurr: false, isPct: true }, 
+            { key: 'skuInv', label: t('met_sku'), isCurr: false },
+            { key: 'valInv', label: t('met_val'), isCurr: true }, 
+            { key: 'salCus', label: t('met_sal_cus'), isCurr: true },
             { key: 'salKae', label: t('met_sal_kae'), isCurr: true }
         ];
 
