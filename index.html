@@ -227,7 +227,7 @@
     /* =========================================
        3. TẢI EXCEL & BẮT CỘT
     ========================================= */
-    async function loadData() {
+async function loadData() {
         let btn = document.getElementById('btn-load');
         btn.disabled = true; btn.innerText = "⏳ Đang tính toán dữ liệu...";
         document.getElementById('st-supa').innerText = "Đang tải & xử lý...";
@@ -236,11 +236,16 @@
             const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
             if (error) throw error;
 
+            // Đã tách ra đọc Buffer 1 lần duy nhất để không bị lỗi crash
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
-            rawRoute = XLSX.utils.sheet_to_json(XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
+            let bRoute = await rRoute.arrayBuffer();
+            let wbRoute = XLSX.read(bRoute, {type: 'array'});
+            rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1, defval: ""});
 
             let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
-            rawOrder = XLSX.utils.sheet_to_json(XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
+            let bOrder = await rOrder.arrayBuffer();
+            let wbOrder = XLSX.read(bOrder, {type: 'array'});
+            rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1, defval: ""});
 
             findColumns();
             if (idx.NV === -1 || idx.DATE === -1) { alert("Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày'!"); return; }
@@ -251,6 +256,7 @@
             document.getElementById('st-supa').style.color = "#16a34a";
             renderUI();
         } catch(e) {
+            console.error(e);
             alert("Lỗi xử lý file Supabase! Vui lòng F12.");
         } finally {
             btn.disabled = false; btn.innerText = "🔄 Làm mới dữ liệu";
