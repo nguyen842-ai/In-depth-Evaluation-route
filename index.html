@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Effective & Efficiency Route</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --white: #ffffff;
+            /* Colors for Evaluation */
+            --color-tot: #22c55e;
+            --color-dat: #86efac;
+            --color-cai-thien: #fef08a;
+            --color-khong-hq: #fca5a5;
+        }
+
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); font-size: 13px; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* Header & Filters */
+        .header { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header h1 { margin: 0 0 15px 0; font-size: 20px; color: #1e293b; text-transform: uppercase; }
+        
+        .filters { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 200px; }
+        .filter-group label { font-weight: 600; margin-bottom: 5px; color: var(--text-sub); }
+        .filter-group select { padding: 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 14px; }
+        
+        .btn-action { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; height: 40px; }
+        .btn-action:hover { background: var(--primary-hover); }
+        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        #status-bar { margin-top: 15px; font-size: 13px; color: var(--text-sub); display: flex; gap: 20px; }
+        .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; }
+        
+        /* Warning Badge */
+        #warning-box { display: none; margin-top: 15px; padding: 10px; background: #fff7ed; border-left: 4px solid #f97316; color: #c2410c; font-weight: 600; border-radius: 4px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .tab-btn { padding: 12px 20px; background: transparent; border: none; font-weight: 600; font-size: 15px; color: var(--text-sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        .tab-content { display: none; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .tab-content.active { display: block; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: center; }
+        th { background: #f8fafc; font-weight: 700; color: #1e293b; position: sticky; top: 0; }
+        td:first-child { text-align: left; font-weight: 600; background: #f8fafc; }
+        
+        /* Evaluation Colors */
+        .eval-tot { background-color: var(--color-tot) !important; color: white; font-weight: bold; }
+        .eval-dat { background-color: var(--color-dat) !important; color: #065f46; font-weight: bold; }
+        .eval-cai-thien { background-color: var(--color-cai-thien) !important; color: #854d0e; font-weight: bold; }
+        .eval-khong-hq { background-color: var(--color-khong-hq) !important; color: #7f1d1d; font-weight: bold; }
+        
+        .num-right { text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📊 Đánh Giá Hiệu Quả & Năng Suất Tuyến</h1>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Khu vực (Area)</label>
+                <select id="sel-area"><option value="">-- Chọn Khu vực --</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Quản lý (KAM)</label>
+                <select id="sel-kam" disabled><option value="">-- Chọn KAM --</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Nhân viên (Sale Team/KAE)</label>
+                <select id="sel-kae" disabled><option value="">-- Chọn Nhân viên --</option></select>
+            </div>
+            <button id="btn-load" class="btn-action" onclick="loadData()">📥 Tải Dữ Liệu</button>
+        </div>
+        
+        <div id="status-bar">
+            <span>Config API: <span id="st-api" class="status-badge">Đang chờ...</span></span>
+            <span>Dữ liệu Supabase: <span id="st-supa" class="status-badge">Chưa tải</span></span>
+        </div>
+        
+        <div id="warning-box">⚠️ Chưa nhận được phản hồi thay đổi tuyến. Dữ liệu đang so sánh với tuần gần nhất.</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-kam')">TRACKING BY KAM</button>
+        <button class="tab-btn" onclick="switchTab('tab-team')">TRACKING BY SALE TEAM</button>
+        <button class="tab-btn" onclick="switchTab('tab-criteria')">THANG ĐÁNH GIÁ (CRITERIA)</button>
+    </div>
+
+    <!-- TAB 1: BY KAM -->
+    <div id="tab-kam" class="tab-content active">
+        <h2 style="margin-top:0;" id="title-kam">Hiệu quả theo KAM: </h2>
+        <table id="table-kam">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Old Route</th>
+                    <th>Revise 1st</th>
+                    <th>% Improvement</th>
+                    <th>Evaluate of effectiveness Route</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-kam">
+                <tr><td colspan="5" style="text-align:center;">Vui lòng chọn KAM và tải dữ liệu</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TAB 2: BY SALE TEAM (KAE) -->
+    <div id="tab-team" class="tab-content">
+        <h2 style="margin-top:0;" id="title-kae">Hiệu quả theo Sale Team: </h2>
+        <table id="table-team">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Old Route</th>
+                    <th>Revise 1st</th>
+                    <th>% Improvement</th>
+                    <th>Evaluate of effectiveness Route</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-team">
+                <tr><td colspan="5" style="text-align:center;">Vui lòng chọn Nhân viên và tải dữ liệu</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TAB 3: CRITERIA -->
+    <div id="tab-criteria" class="tab-content">
+        <h2 style="margin-top:0;">THANG ĐÁNH GIÁ ÁP DỤNG</h2>
+        <table>
+            <thead>
+                <tr style="background:#e2e8f0;">
+                    <th>Item</th>
+                    <th class="eval-tot">Tốt</th>
+                    <th class="eval-dat">Đạt</th>
+                    <th class="eval-cai-thien">Cần cải thiện</th>
+                    <th class="eval-khong-hq">Không hiệu quả</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td>AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td>Compliance Route (%) (Tuyệt đối)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
+                <tr><td>Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td>SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td>Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td>Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td>Sales/ KAE</td><td>&ge; 25%</td><td>&ge; 10%; &lt; 25%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       1. CẤU HÌNH HỆ THỐNG & API
+    ========================================= */
+    const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbxhZEBR0Um4GvzHQAAfVmUX9Yy8E7eln_uhbhJJJ5o6plaa6e88GNy7a_nhFg16S2qC0g/exec';
+    const SUPABASE_URL = 'https://mrqldgycwovpbmzdeuyz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_itZfZBVw7bxE184tGh7x8A_0_r-QB5p';
+    const BUCKET = 'mappingdata';
+    
+    // Đã thay đổi file theo yêu cầu mới nhất
+    const FILE_ROUTE = 'valuationroute.xlsx'; 
+    const FILE_ORDER = 'dh.xlsx';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Biến toàn cục
+    let apiConfig = {}; // Lưu data từ Google Sheet
+    let rawRoute = [];
+    let rawOrder = [];
+    let isDataLoaded = false;
+
+    // Mapping Cột (Tự động tìm dựa trên Header)
+    let idx = {
+        NV: -1, DATE: -1, DAY: -1, IN_OUT: -1, LAT: -1, LNG: -1, T_IN: -1, T_OUT: -1, PO: -1
+    };
+    let idxDh = { PO: -1, SALES: -1, SKU: -1 };
+
+    /* =========================================
+       2. TẢI CẤU HÌNH GOOGLE SHEET & KHỞI TẠO UI
+    ========================================= */
+    async function init() {
+        try {
+            document.getElementById('st-api').innerText = "Đang tải...";
+            let res = await fetch(GOOGLE_API_URL);
+            apiConfig = await res.json();
+            document.getElementById('st-api').innerText = "✅ Đã tải";
+            document.getElementById('st-api').style.color = "#16a34a";
+            
+            buildFilters();
+        } catch (e) {
+            console.error(e);
+            document.getElementById('st-api').innerText = "❌ Lỗi API";
+            document.getElementById('st-api').style.color = "#dc2626";
+        }
+    }
+
+    function buildFilters() {
+        let areas = new Set();
+        Object.values(apiConfig).forEach(c => { if(c.area) areas.add(c.area); });
+        
+        let selArea = document.getElementById('sel-area');
+        selArea.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
+        [...areas].sort().forEach(a => selArea.innerHTML += `<option value="${a}">${a}</option>`);
+
+        selArea.addEventListener('change', () => {
+            let a = selArea.value;
+            let selKam = document.getElementById('sel-kam');
+            selKam.innerHTML = '<option value="">-- Chọn KAM --</option>';
+            if(!a) { selKam.disabled = true; return; }
+            
+            let kams = new Set();
+            Object.values(apiConfig).forEach(c => { if(c.area === a && c.kam) kams.add(c.kam); });
+            [...kams].sort().forEach(k => selKam.innerHTML += `<option value="${k}">${k}</option>`);
+            selKam.disabled = false;
+        });
+
+        document.getElementById('sel-kam').addEventListener('change', () => {
+            let k = document.getElementById('sel-kam').value;
+            let selKae = document.getElementById('sel-kae');
+            selKae.innerHTML = '<option value="">-- Tất cả Sale Team --</option>';
+            if(!k) { selKae.disabled = true; return; }
+            
+            Object.keys(apiConfig).forEach(kae => {
+                if(apiConfig[kae].kam === k) selKae.innerHTML += `<option value="${kae}">${kae}</option>`;
+            });
+            selKae.disabled = false;
+        });
+    }
+
+    /* =========================================
+       3. TẢI DỮ LIỆU TỪ SUPABASE (ROUTE & ĐƠN HÀNG)
+    ========================================= */
+    async function loadData() {
+        let btn = document.getElementById('btn-load');
+        btn.disabled = true;
+        btn.innerText = "⏳ Đang xử lý...";
+        document.getElementById('st-supa').innerText = "Đang tải...";
+        
+        try {
+            const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
+            if (error) throw error;
+
+            // Load Route
+            let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
+            let bRoute = await rRoute.arrayBuffer();
+            let wbRoute = XLSX.read(bRoute, {type: 'array'});
+            rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1});
+
+            // Load Order
+            let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
+            let bOrder = await rOrder.arrayBuffer();
+            let wbOrder = XLSX.read(bOrder, {type: 'array'});
+            rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1});
+
+            findColumns();
+            isDataLoaded = true;
+            document.getElementById('st-supa').innerText = "✅ Xong";
+            document.getElementById('st-supa').style.color = "#16a34a";
+            
+            processAndRender();
+        } catch(e) {
+            console.error(e);
+            alert("Lỗi tải file Supabase!");
+            document.getElementById('st-supa').innerText = "❌ Lỗi";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "📥 Tải Dữ Liệu";
+        }
+    }
+
+    function findColumns() {
+        // Tự động tìm cột bằng từ khóa
+        let header = rawRoute[0].map(h => String(h).toLowerCase());
+        idx.NV = header.findIndex(h => h.includes('nhân viên') || h.includes('kae'));
+        idx.DATE = header.findIndex(h => h.includes('ngày') || h.includes('date'));
+        idx.DAY = header.findIndex(h => h.includes('thứ'));
+        idx.IN_OUT = header.findIndex(h => h.includes('lộ trình') || h.includes('tuyến'));
+        idx.LAT = header.findIndex(h => h === 'lat' || h.includes('tọa độ'));
+        idx.LNG = header.findIndex(h => h === 'lng' || (h.includes('tọa độ') && h !== header[idx.LAT]));
+        idx.T_IN = header.findIndex(h => h.includes('bắt đầu'));
+        idx.T_OUT = header.findIndex(h => h.includes('kết thúc'));
+        idx.PO = header.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
+
+        let hDh = rawOrder[0].map(h => String(h).toLowerCase());
+        idxDh.PO = hDh.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
+        idxDh.SALES = hDh.findIndex(h => h.includes('tiền') || h.includes('doanh số'));
+        idxDh.SKU = hDh.findIndex(h => h.includes('sku') || h.includes('mã hàng'));
+    }
+
+    /* =========================================
+       4. THUẬT TOÁN 1:1 MATCHING & TÍNH TOÁN CORE
+    ========================================= */
+    // Helper: Chuyển chuỗi dd/mm/yyyy thành Date object
+    function parseDate(str) {
+        if(!str) return new Date(0);
+        let p = str.split('/');
+        if(p.length === 3) return new Date(p[2], p[1]-1, p[0]);
+        return new Date(str); 
+    }
+
+    function timeToMins(t) {
+        if(!t) return 0;
+        let p = t.toString().split(':');
+        return (parseInt(p[0])||0)*60 + (parseInt(p[1])||0);
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+        let R = 6371; let dLat = (lat2-lat1)*Math.PI/180; let dLon = (lon2-lon1)*Math.PI/180;
+        let a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) * 1.4; // Haversine x1.4
+    }
+
+    function calculateRawData(kaeName) {
+        let config = apiConfig[kaeName];
+        if(!config) return null;
+
+        // Xử lý Cảnh báo "Chưa có phản hồi tuyến"
+        if(!config.hasRevise) {
+            document.getElementById('warning-box').style.display = 'block';
+        } else {
+            document.getElementById('warning-box').style.display = 'none';
+        }
+
+        let sDate = parseDate(config.startDate);
+        let eDate = parseDate(config.endDate);
+        let rDate = parseDate(config.currentRevise); // Mốc phân chia
+
+        // 1. Lọc toàn bộ data của KAE này (bỏ header)
+        let dataKAE = rawRoute.slice(1).filter(r => r[idx.NV] === kaeName && r[idx.DATE]);
+
+        // 2. Tách bộ Revise (Trong khoảng Start-End)
+        let reviseSet = dataKAE.filter(r => {
+            let d = parseDate(r[idx.DATE]);
+            return d >= sDate && d <= eDate;
+        });
+
+        // 3. Xác định các "Thứ" (Day of week) đã đi trong Revise
+        let reviseDays = [...new Set(reviseSet.map(r => r[idx.DAY]))].filter(Boolean);
+
+        // 4. Thuật toán Lội ngược: Tìm Old Set (Các ngày tương ứng gần nhất trước mốc currentRevise)
+        let oldSet = [];
+        let historicalSet = dataKAE.filter(r => parseDate(r[idx.DATE]) < rDate).reverse(); // Đảo ngược để quét từ gần về xa
+        
+        let foundDatesForDay = {};
+        reviseDays.forEach(day => foundDatesForDay[day] = null); // Khởi tạo
+
+        // Tìm 1 ngày gần nhất cho mỗi Thứ
+        for(let row of historicalSet) {
+            let day = row[idx.DAY];
+            if(reviseDays.includes(day) && foundDatesForDay[day] === null) {
+                foundDatesForDay[day] = row[idx.DATE]; // Chốt ngày này
+            }
+        }
+        
+        // Bốc các dòng thuộc các ngày vừa chốt vào Old Set
+        let selectedOldDates = Object.values(foundDatesForDay).filter(Boolean);
+        oldSet = dataKAE.filter(r => selectedOldDates.includes(r[idx.DATE]));
+
+        // 5. Hàm tính toán chỉ số thô (Raw Metrics) từ 1 Dataset
+        const compileSet = (dataset) => {
+            let dist = 0, time = 0, out = dataset.length, inR = 0, poCount = 0;
+            let sales = 0, sku = 0;
+            let uniqueDays = new Set(dataset.map(r => r[idx.DATE])).size || 1;
+
+            dataset.forEach((r, i) => {
+                // Route type
+                if(String(r[idx.IN_OUT]).toLowerCase().includes('trong')) inR++;
+                
+                // Time
+                let tI = timeToMins(r[idx.T_IN]), tO = timeToMins(r[idx.T_OUT]);
+                if(tO > tI) time += (tO - tI);
+
+                // Distance
+                if(i < dataset.length-1 && r[idx.DATE] === dataset[i+1][idx.DATE]) {
+                    dist += getDistance(r[idx.LAT], r[idx.LNG], dataset[i+1][idx.LAT], dataset[i+1][idx.LNG]);
+                }
+
+                // PO & Sales
+                let poStr = String(r[idx.PO]||'').trim();
+                if(poStr && poStr.toUpperCase().includes('PO')) {
+                    poCount++;
+                    let listPo = poStr.split(/[\n,;]+/).map(p=>p.trim()).filter(Boolean);
+                    listPo.forEach(p => {
+                        let dhRow = rawOrder.find(o => String(o[idxDh.PO]).trim() === p);
+                        if(dhRow) {
+                            sales += parseFloat(String(dhRow[idxDh.SALES]).replace(/,/g,'')) || 0;
+                            sku += parseFloat(dhRow[idxDh.SKU]) || 1; // Giả sử cột SKU ghi số lượng, ko có thì tính là 1 dòng
+                        }
+                    });
+                }
+            });
+
+            return {
+                days: uniqueDays, dist, time, out, inR, poCount, sales, sku
+            };
+        };
+
+        return {
+            oldRaw: compileSet(oldSet),
+            revRaw: compileSet(reviseSet)
+        };
+    }
+
+    // Biến Raw data thành KPI format
+    function calcKPI(raw) {
+        if(raw.out === 0) return { avgDist:0, avgTime:0, comp:0, cov:0, actAbs:0, actPct:0, skuInv:0, valInv:0, salCus:0, salKae:0 };
+        return {
+            avgDist: raw.dist / raw.days,
+            avgTime: raw.time / raw.out,
+            comp: (raw.inR / raw.out) * 100, // Tuân thủ MCP (Giả định InRoute/Total)
+            cov: raw.out, // Giữ số tuyệt đối vì ko có Tổng KH kế hoạch
+            actAbs: raw.poCount,
+            actPct: (raw.poCount / raw.out) * 100,
+            skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
+            valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0,
+            salCus: raw.sales / raw.out,
+            salKae: raw.sales
+        };
+    }
+
+    /* =========================================
+       5. RENDER GIAO DIỆN & TÔ MÀU (EVALUATION)
+    ========================================= */
+    function getEval(item, imp, revVal) {
+        // Tuân thủ MCP xét theo giá trị tuyệt đối của Revise
+        if(item === 'comp') {
+            if(revVal >= 95) return { text: 'Tốt', class: 'eval-tot' };
+            if(revVal >= 85) return { text: 'Đạt', class: 'eval-dat' };
+            if(revVal >= 70) return { text: 'Cần cải thiện', class: 'eval-cai-thien' };
+            return { text: 'Không hiệu quả', class: 'eval-khong-hq' };
+        }
+        
+        // Quãng đường: Giảm là tốt -> Đảo dấu imp
+        let checkImp = (item === 'avgDist') ? (-imp) : imp;
+
+        let thresholds = {
+            avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 },
+            cov: { t:10, d:3, c:0 }, actAbs: { t:15, d:5, c:0 }, actPct: { t:15, d:5, c:0 },
+            skuInv: { t:15, d:5, c:0 }, valInv: { t:20, d:10, c:0 },
+            salCus: { t:20, d:10, c:0 }, salKae: { t:25, d:10, c:0 }
+        };
+        
+        let t = thresholds[item] || { t:20, d:10, c:0 };
+        
+        if(checkImp >= t.t) return { text: 'Tốt', class: 'eval-tot' };
+        if(checkImp >= t.d) return { text: 'Đạt', class: 'eval-dat' };
+        if(checkImp > t.c) return { text: 'Cần cải thiện', class: 'eval-cai-thien' };
+        return { text: 'Không hiệu quả', class: 'eval-khong-hq' };
+    }
+
+    function formatN(num, isCurr=false) {
+        if(isNaN(num)) return '0';
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: isCurr ? 0 : 1, maximumFractionDigits: isCurr ? 0 : 2
+        }).format(num);
+    }
+
+    function renderTable(tbodyId, kpiOld, kpiRev) {
+        let tbody = document.getElementById(tbodyId);
+        tbody.innerHTML = '';
+        
+        let rows = [
+            { key: 'avgDist', label: 'AVG distance/ day (Km)', isCurr: false },
+            { key: 'avgTime', label: 'AVG service time/ outlet (min)', isCurr: false },
+            { key: 'comp', label: 'Compliance Route (%)', isCurr: false, isPct: true },
+            { key: 'actAbs', label: 'Active Outlet (Outlets)', isCurr: false },
+            { key: 'actPct', label: 'Active Outlet (%)', isCurr: false, isPct: true },
+            { key: 'skuInv', label: 'SKU/ invoice', isCurr: false },
+            { key: 'valInv', label: 'Value/ invoice', isCurr: true },
+            { key: 'salCus', label: 'Sales/ customers', isCurr: true },
+            { key: 'salKae', label: 'Sales/ KAE', isCurr: true }
+        ];
+
+        rows.forEach(r => {
+            let oldV = kpiOld[r.key];
+            let revV = kpiRev[r.key];
+            let imp = oldV === 0 ? (revV > 0 ? 100 : 0) : ((revV - oldV) / oldV * 100);
+            let evalRes = getEval(r.key, imp, revV);
+
+            let strOld = formatN(oldV, r.isCurr) + (r.isPct ? '%' : '');
+            let strRev = formatN(revV, r.isCurr) + (r.isPct ? '%' : '');
+            let strImp = formatN(imp) + '%';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.label}</td>
+                    <td class="num-right">${strOld}</td>
+                    <td class="num-right" style="font-weight:bold; color:#1e40af;">${strRev}</td>
+                    <td class="num-right">${strImp}</td>
+                    <td class="${evalRes.class}">${evalRes.text}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function processAndRender() {
+        if(!isDataLoaded) return;
+        let selKam = document.getElementById('sel-kam').value;
+        let selKae = document.getElementById('sel-kae').value;
+        if(!selKam) return;
+
+        // 1. RENDER TEAM (KAE SPECIFIC)
+        if(selKae) {
+            document.getElementById('title-kae').innerText = `Hiệu quả theo Sale Team: ${selKae}`;
+            let res = calculateRawData(selKae);
+            if(res) {
+                renderTable('tbody-team', calcKPI(res.oldRaw), calcKPI(res.revRaw));
+            }
+        } else {
+            document.getElementById('title-kae').innerText = `Hiệu quả theo Sale Team: (Chọn KAE)`;
+            document.getElementById('tbody-team').innerHTML = '<tr><td colspan="5" style="text-align:center;">Vui lòng chọn Nhân viên</td></tr>';
+        }
+
+        // 2. RENDER KAM (AGGREGATED)
+        document.getElementById('title-kam').innerText = `Hiệu quả theo KAM: ${selKam}`;
+        let kamOldRaw = { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0 };
+        let kamRevRaw = { days:0, dist:0, time:0, out:0, inR:0, poCount:0, sales:0, sku:0 };
+        let countKae = 0;
+
+        Object.keys(apiConfig).forEach(kae => {
+            if(apiConfig[kae].kam === selKam) {
+                let r = calculateRawData(kae);
+                if(r) {
+                    countKae++;
+                    ['dist','time','out','inR','poCount','sales','sku'].forEach(k => {
+                        kamOldRaw[k] += r.oldRaw[k]; kamRevRaw[k] += r.revRaw[k];
+                    });
+                    // Lấy trung bình ngày của KAM
+                    kamOldRaw.days = Math.max(kamOldRaw.days, r.oldRaw.days);
+                    kamRevRaw.days = Math.max(kamRevRaw.days, r.revRaw.days);
+                }
+            }
+        });
+
+        if(countKae > 0) {
+            renderTable('tbody-kam', calcKPI(kamOldRaw), calcKPI(kamRevRaw));
+        }
+    }
+
+    // UI TABS SWITCHER
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Chạy khi mở trang
+    window.onload = init;
+
+</script>
+</body>
+</html>
