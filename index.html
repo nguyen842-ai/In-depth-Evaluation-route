@@ -85,10 +85,10 @@
         .set-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         input[type="range"] { cursor: pointer; }
 
-        .metrics-desc { margin-top: 30px; padding: 20px; background: var(--badge-bg); border-radius: var(--radius-md); }
+        .metrics-desc { margin-top: 30px; padding: 25px; background: var(--badge-bg); border-radius: var(--radius-md); border-left: 5px solid var(--primary); }
         .metrics-desc h3 { margin: 0 0 15px 0; color: var(--header-color); }
-        .metrics-desc ul { margin: 0; padding-left: 20px; color: var(--text-main); line-height: 1.6; }
-        .metrics-desc li { margin-bottom: 8px; }
+        .metrics-desc ul { margin: 0; padding-left: 20px; color: var(--text-main); line-height: 1.7; }
+        .metrics-desc li { margin-bottom: 10px; }
     </style>
 </head>
 <body class="dark-mode">
@@ -140,7 +140,7 @@
                 </tr>
             </thead>
             <tbody id="tbody-kam">
-                <tr><td colspan="5" style="text-align:center; padding: 20px;" data-i18n="pls_sel_kam">Please Select KAM and Click Load Data</td></tr>
+                <tr><td colspan="5" style="text-align:center; padding: 20px;" data-i18n="pls_sel_kam">Please click the Load Data button before using Filter </td></tr>
             </tbody>
         </table>
     </div>
@@ -185,31 +185,30 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td data-i18n="met_dist">AVG distance to travel per day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_time">AVG service time at customer (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_comp">Route Compliance Rate (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
+                <tr><td data-i18n="met_dist">AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_time">AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_comp">Compliance Route (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
                 <tr><td data-i18n="met_act_pct_cov">Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_act_pct_visit">Visit Conversion Rate (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_sku">AVG SKU / Invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_val">AVG Value / Invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_sal_cus">AVG Sales per customer (VND)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sku">SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_val">Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sal_cus">Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_sal_kae">Sales/ KAE</td><td>&ge; 25%</td><td>&ge; 10%; &lt; 25%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
             </tbody>
         </table>
 
-        <!-- BẢNG MÔ TẢ CÁC HẠNG MỤC TÍNH TOÁN -->
         <div class="metrics-desc">
-            <h3 data-i18n="desc_title">METRICS DESCRIPTION</h3>
+            <h3 data-i18n="desc_title">METRICS INSIGHTS & ACTIONS</h3>
             <ul>
-                <li><strong data-i18n="met_dist">AVG distance to travel per day (Km)</strong>: <span data-i18n="desc_dist">Total distance traveled divided by the total number of working days.</span></li>
-                <li><strong data-i18n="met_time">AVG service time at customer (min)</strong>: <span data-i18n="desc_time">Total time spent at outlets divided by the total number of visits.</span></li>
-                <li><strong data-i18n="met_comp">Route Compliance Rate (%)</strong>: <span data-i18n="desc_comp">The percentage of visits made to planned ("in-route") customers over total visits.</span></li>
-                <li><strong data-i18n="met_act_abs">Active Outlet (Customers)</strong>: <span data-i18n="desc_act_abs">The unique number of customers who placed at least one valid order.</span></li>
-                <li><strong data-i18n="met_act_pct_cov">Active Outlet (%)</strong>: <span data-i18n="desc_act_pct_cov">The percentage of unique active outlets out of the total unique visited customers.</span></li>
-                <li><strong data-i18n="met_act_pct_visit">Visit Conversion Rate (%)</strong>: <span data-i18n="desc_act_pct_visit">The percentage of active outlets achieved per total store visits (measuring visit efficiency).</span></li>
-                <li><strong data-i18n="met_sku">AVG SKU / Invoice</strong>: <span data-i18n="desc_sku">The average number of SKUs sold per valid invoice/order.</span></li>
-                <li><strong data-i18n="met_val">AVG Value / Invoice</strong>: <span data-i18n="desc_val">The average revenue generated per valid invoice/order.</span></li>
-                <li><strong data-i18n="met_sal_cus">AVG Sales per customer (VND)</strong>: <span data-i18n="desc_sal_cus">Total sales divided by the total number of visits made.</span></li>
+                <li><strong data-i18n="met_dist">AVG distance to travel per day (Km)</strong>: <span data-i18n="desc_dist">Depending on objective reasons (territory, upgrading route from F4 to F2, adding new customers) or subjective reasons (staff not following the planned visit sequence), KAM/CDM should investigate why this metric is evaluated as Ineffective/Need Improvement.</span></li>
+                <li><strong data-i18n="met_time">AVG service time at customer (min)</strong>: <span data-i18n="desc_time">An indicator for analyzing staff working habits at outlets across cycles. Used to detect abnormal drops or increases.</span></li>
+                <li><strong data-i18n="met_comp">Route Compliance Rate (%)</strong>: <span data-i18n="desc_comp">Depending on objective or subjective reasons (staff not following Route plan), KAM/CDM should double-check if 100% route compliance does not improve sales, or vice versa.</span></li>
+                <li><strong data-i18n="met_act_abs">Active Outlet (Customers)</strong>: <span data-i18n="desc_act_abs">The number of unique customers who successfully placed an order.</span></li>
+                <li><strong data-i18n="met_act_pct_cov">Active Outlet (%)</strong>: <span data-i18n="desc_act_pct_cov">Measures actual market coverage.</span></li>
+                <li><strong data-i18n="met_act_pct_visit">Visit Conversion Rate (%)</strong>: <span data-i18n="desc_act_pct_visit">Indicates whether each visit results in an order. KAM/CDM should review the route details if this metric shows no improvement or remains too low, to adjust the visit frequency.</span></li>
+                <li><strong data-i18n="met_sku">AVG SKU / Invoice</strong>: <span data-i18n="desc_sku">Average number of SKUs per order.</span></li>
+                <li><strong data-i18n="met_val">AVG Value / Invoice</strong>: <span data-i18n="desc_val">Average value of each order.</span></li>
+                <li><strong data-i18n="met_sal_cus">AVG Sales per customer (VND)</strong>: <span data-i18n="desc_sal_cus">Customer capability index in the area managed by KAE/KAM.</span></li>
             </ul>
         </div>
     </div>
@@ -252,16 +251,16 @@
             met_sal_kae: "Sales/ KAE",
 
             // MÔ TẢ CHỈ SỐ
-            desc_title: "METRICS DESCRIPTION",
-            desc_dist: "Total distance traveled divided by the total number of working days.",
-            desc_time: "Total time spent at outlets divided by the total number of visits.",
-            desc_comp: "The percentage of visits made to planned ('in-route') customers over total visits.",
-            desc_act_abs: "The unique number of customers who placed at least one valid order.",
-            desc_act_pct_cov: "The percentage of unique active outlets out of the total unique visited customers.",
-            desc_act_pct_visit: "The percentage of active outlets achieved per total store visits (measuring visit efficiency).",
-            desc_sku: "The average number of SKUs sold per valid invoice/order.",
-            desc_val: "The average revenue generated per valid invoice/order.",
-            desc_sal_cus: "Total sales divided by the total number of visits made."
+            desc_title: "METRICS INSIGHTS & ACTIONS",
+            desc_dist: "Depending on objective reasons (territory, upgrading route from F4 to F2, adding new customers) or subjective reasons (staff not following the planned visit sequence), KAM/CDM should investigate why this metric is evaluated as Ineffective/Need Improvement.",
+            desc_time: "An indicator for analyzing staff working habits at outlets across cycles. Used to detect abnormal drops or increases.",
+            desc_comp: "Depending on objective or subjective reasons (staff not following Route plan), KAM/CDM should double-check if 100% route compliance does not improve sales, or vice versa.",
+            desc_act_abs: "The number of unique customers who successfully placed an order.",
+            desc_act_pct_cov: "Measures actual market coverage.",
+            desc_act_pct_visit: "Indicates whether each visit results in an order. KAM/CDM should review the route details if this metric shows no improvement or remains too low, to adjust the visit frequency.",
+            desc_sku: "Average number of SKUs per order.",
+            desc_val: "Average value of each order.",
+            desc_sal_cus: "Customer capability index in the area managed by KAE/KAM."
         },
         vi: {
             app_title: "Đánh Giá Hiệu Quả & Năng Suất Tuyến",
@@ -276,7 +275,7 @@
             warn_tag: "⚠️ Thiếu dữ liệu 1 kỳ",
             tab_kam: "TRACKING BY KAM", tab_team: "TRACKING BY SALE TEAM", tab_crit: "THANG ĐÁNH GIÁ",
             eff_kam: "Hiệu quả tổng hợp của KAM: ", eff_team: "Hiệu quả theo Sale Team: ",
-            pls_sel_kam: "Vui lòng Chọn Quản lý (KAM) và Bấm Tải Dữ Liệu",
+            pls_sel_kam: "Vui lòng Bấm TẢI DỮ LIỆU trước khi sử dụng bộ lọc",
             no_staff: "Không có nhân viên nào thuộc KAM này.", no_data: "Không có dữ liệu hợp lệ ở cả 2 kỳ.",
             staff_lbl: "Nhân viên: ",
             set_title: "Cài đặt", set_lang: "Ngôn ngữ:", set_theme: "Giao diện:", set_font: "Cỡ chữ:",
@@ -298,16 +297,16 @@
             met_sal_kae: "Doanh số/ KAE",
 
             // MÔ TẢ CHỈ SỐ
-            desc_title: "MÔ TẢ CHI TIẾT HẠNG MỤC",
-            desc_dist: "Tổng quãng đường di chuyển chia cho tổng số ngày làm việc thực tế.",
-            desc_time: "Tổng thời gian lưu lại tại các điểm bán chia cho tổng số lượt ghé thăm.",
-            desc_comp: "Tỷ lệ phần trăm các lượt ghé thăm đúng theo kế hoạch (khách hàng 'Trong tuyến') trên tổng số lượt đi.",
+            desc_title: "CHÚ GIẢI THÔNG SỐ & HÀNH ĐỘNG",
+            desc_dist: "Tùy theo nguyên nhân khách quan (địa bàn và tình trạng phát triển tuyến bán hàng từ F4 thành F2, hoặc bổ sung khách) hoặc chủ quan (Nhân viên không di chuyển theo kế hoạch thứ tự ghé thăm), KAM/CDM vui lòng kiểm tra lại nguyên nhân khiến đánh giá hạng mục này là Không hiệu quả/ Cần cải thiện.",
+            desc_time: "Chỉ số phục vụ cho việc phân tích thói quen làm việc của nhân viên tại điểm bán qua các chu kỳ. Phát hiện sụt giảm hoặc tăng bất thường.",
+            desc_comp: "Tùy theo nguyên nhân khách quan (địa bàn và tình trạng phát triển tuyến bán hàng từ F4 thành F2, hoặc bổ sung khách) hoặc chủ quan (Nhân viên không di chuyển theo Route plan), KAM/CDM vui lòng kiểm tra lại nếu việc tuân thủ tuyến 100% nhưng không cải thiện được doanh số hoặc ngược lại.",
             desc_act_abs: "Số lượng khách hàng (không tính trùng lặp) có phát sinh đơn hàng thành công.",
-            desc_act_pct_cov: "Khách hàng lên đơn chia cho Tổng số khách hàng ĐÃ ghé thăm (Đo lường độ bao phủ thực tế).",
-            desc_act_pct_visit: "Số lượng khách hàng lên đơn chia cho Tổng số lượt ghé thăm (Đo lường tỷ lệ chốt đơn theo lượt).",
-            desc_sku: "Tổng số mặt hàng (SKU) bán được chia cho Tổng số lượng đơn hàng.",
-            desc_val: "Tổng giá trị doanh số chia cho Tổng số lượng đơn hàng.",
-            desc_sal_cus: "Tổng doanh số thu được chia cho Tổng số lượt ghé thăm."
+            desc_act_pct_cov: "Đo lường độ bao phủ thực tế.",
+            desc_act_pct_visit: "Chỉ số thể hiện việc mỗi lần ghé thăm có phát sinh đơn hàng hay không. KAM/CDM vui lòng kiểm tra chi tiết tuyến bán hàng nếu chỉ số này chưa có sự cải thiện hoặc đã cải thiện nhưng vẫn quá thấp để điều chỉnh tần suất ghé thăm.",
+            desc_sku: "Trung bình số lượng SKU trên mỗi đơn hàng.",
+            desc_val: "Giá trị trung bình của mỗi đơn hàng.",
+            desc_sal_cus: "Chỉ số năng lực của khách hàng tại khu vực do KAE/KAM phụ trách."
         }
     };
 
@@ -661,11 +660,12 @@
                 avgTime: raw.time / raw.out, 
                 comp: (raw.inR / raw.out) * 100, 
                 actAbs: raw.actCus, 
-                actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, // Đảo lên trên
-                actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0,    // Kéo xuống dưới
+                actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, 
+                actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0,    
                 skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
                 valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0, 
-                salCus: raw.sales / raw.out, 
+                // ĐÃ FIX THEO YÊU CẦU: Doanh số chia cho Số khách hàng lên đơn (thay vì Số lượt ghé thăm)
+                salCus: raw.actCus > 0 ? (raw.sales / raw.actCus) : 0, 
                 salKae: isKam ? (raw.kaeCount > 0 ? (raw.sales / raw.kaeCount) : 0) : raw.sales
             };
         };
