@@ -17,7 +17,7 @@
             --card-shadow: 0 4px 12px rgba(0,0,0,0.05);
             --badge-bg: #e2e8f0; --warning-bg: #fff7ed; --warning-border: #f97316;
             --header-color: #1e3a8a; --table-header: #f8fafc;
-            --radius-lg: 20px; /* Bo góc mượt kiểu Superellipse */
+            --radius-lg: 20px; 
             --radius-md: 12px;
         }
 
@@ -64,7 +64,7 @@
         th:last-child, td:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
         th { background: var(--table-header); font-weight: 700; color: var(--text-main); position: sticky; top: 0; }
-        td:first-child { text-align: left; font-weight: 600; background: var(--table-header); width: 25%; }
+        td:first-child { text-align: left; font-weight: 600; background: var(--table-header); width: 30%; }
         
         .kae-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 30px; box-shadow: var(--card-shadow); transition: 0.3s;}
         .kae-card h3 { margin: 0 0 18px 0; color: var(--header-color); font-size: 1.2em; border-bottom: 2px solid var(--border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -84,13 +84,18 @@
         .set-btn:hover { background: var(--badge-bg); }
         .set-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         input[type="range"] { cursor: pointer; }
+
+        .metrics-desc { margin-top: 30px; padding: 20px; background: var(--badge-bg); border-radius: var(--radius-md); }
+        .metrics-desc h3 { margin: 0 0 15px 0; color: var(--header-color); }
+        .metrics-desc ul { margin: 0; padding-left: 20px; color: var(--text-main); line-height: 1.6; }
+        .metrics-desc li { margin-bottom: 8px; }
     </style>
 </head>
-<body class="dark-mode"> <!-- MẶC ĐỊNH LÀ DARK THEME -->
+<body class="dark-mode">
 
 <div class="container">
     <div class="header">
-        <h1 data-i18n="app_title">Tracking Effective & Efficiency Route</h1> <!-- ĐÃ BỎ ICON -->
+        <h1 data-i18n="app_title">Tracking Effective & Efficiency Route</h1>
         <div class="filters">
             <div class="filter-group">
                 <label data-i18n="area">Area</label>
@@ -110,7 +115,6 @@
         </div>
         
         <div id="status-bar">
-            <!-- ĐÃ GỠ BỎ DATA-I18N Ở CÁC THẺ SPAN NÀY ĐỂ TRÁNH RESET TRẠNG THÁI -->
             <span><span data-i18n="prog_check">Progress Check:</span> <span id="st-api" class="status-badge">Waiting...</span></span>
             <span><span data-i18n="sys_data">System Data:</span> <span id="st-supa" class="status-badge">Unloaded</span></span>
         </div>
@@ -159,7 +163,6 @@
                 <div class="set-group">
                     <label data-i18n="set_theme">Theme:</label> 
                     <button class="set-btn" id="btn-light" onclick="changeTheme('light')" data-i18n="theme_light">Light</button> 
-                    <!-- ĐẶT DARK THEME LÀ ACTIVE MẶC ĐỊNH -->
                     <button class="set-btn active" id="btn-dark" onclick="changeTheme('dark')" data-i18n="theme_dark">Dark</button>
                 </div>
                 <div class="set-group">
@@ -182,17 +185,33 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td data-i18n="met_dist">AVG distance/ day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_time">AVG service time/ outlet (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_comp">Compliance Route (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
-                <tr><td data-i18n="met_act_pct_visit">Active Outlet/ Visits (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_act_pct_cov">Active Outlet/ Customers (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_sku">SKU/ invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_val">Value/ invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
-                <tr><td data-i18n="met_sal_cus">Sales/ customers</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_dist">AVG distance to travel per day (Km)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_time">AVG service time at customer (min)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_comp">Route Compliance Rate (%)</td><td>&ge; 95%</td><td>&ge; 85%; &lt; 95%</td><td>&ge; 70%; &lt; 85%</td><td>&le; 70%</td></tr>
+                <tr><td data-i18n="met_act_pct_cov">Active Outlet (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_act_pct_visit">Visit Conversion Rate (%)</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sku">AVG SKU / Invoice</td><td>&ge; 15%</td><td>&ge; 5%; &lt; 15%</td><td>&lt; 5%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_val">AVG Value / Invoice</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
+                <tr><td data-i18n="met_sal_cus">AVG Sales per customer (VND)</td><td>&ge; 20%</td><td>&ge; 10%; &lt; 20%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
                 <tr><td data-i18n="met_sal_kae">Sales/ KAE</td><td>&ge; 25%</td><td>&ge; 10%; &lt; 25%</td><td>&lt; 10%</td><td>&le; 0%</td></tr>
             </tbody>
         </table>
+
+        <!-- BẢNG MÔ TẢ CÁC HẠNG MỤC TÍNH TOÁN -->
+        <div class="metrics-desc">
+            <h3 data-i18n="desc_title">METRICS DESCRIPTION</h3>
+            <ul>
+                <li><strong data-i18n="met_dist">AVG distance to travel per day (Km)</strong>: <span data-i18n="desc_dist">Total distance traveled divided by the total number of working days.</span></li>
+                <li><strong data-i18n="met_time">AVG service time at customer (min)</strong>: <span data-i18n="desc_time">Total time spent at outlets divided by the total number of visits.</span></li>
+                <li><strong data-i18n="met_comp">Route Compliance Rate (%)</strong>: <span data-i18n="desc_comp">The percentage of visits made to planned ("in-route") customers over total visits.</span></li>
+                <li><strong data-i18n="met_act_abs">Active Outlet (Customers)</strong>: <span data-i18n="desc_act_abs">The unique number of customers who placed at least one valid order.</span></li>
+                <li><strong data-i18n="met_act_pct_cov">Active Outlet (%)</strong>: <span data-i18n="desc_act_pct_cov">The percentage of unique active outlets out of the total unique visited customers.</span></li>
+                <li><strong data-i18n="met_act_pct_visit">Visit Conversion Rate (%)</strong>: <span data-i18n="desc_act_pct_visit">The percentage of active outlets achieved per total store visits (measuring visit efficiency).</span></li>
+                <li><strong data-i18n="met_sku">AVG SKU / Invoice</strong>: <span data-i18n="desc_sku">The average number of SKUs sold per valid invoice/order.</span></li>
+                <li><strong data-i18n="met_val">AVG Value / Invoice</strong>: <span data-i18n="desc_val">The average revenue generated per valid invoice/order.</span></li>
+                <li><strong data-i18n="met_sal_cus">AVG Sales per customer (VND)</strong>: <span data-i18n="desc_sal_cus">Total sales divided by the total number of visits made.</span></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -219,12 +238,30 @@
             crit_applied: "APPLIED EVALUATION CRITERIA",
             item: "Item", old_route: "Old Route", rev_1st: "Revise Route", pct_imp: "% Improvement", eval_eff: "Evaluate of effectiveness Route",
             st_good: "Good", st_pass: "Pass", st_imp: "Need Improvement", st_fail: "Ineffective",
-            met_dist: "AVG distance/ day (Km)", met_time: "AVG service time/ outlet (min)", met_comp: "Compliance Route (%) (Absolute)", 
-            met_act_abs: "Active Outlet (Outlets)", 
-            met_act_pct_visit: "Active Outlet / Total Visits (%)", 
-            met_act_pct_cov: "Active Outlet / Visited Outlets (%)", 
+            
+            // TÊN CHỈ SỐ
+            met_dist: "AVG distance to travel per day (Km)", 
+            met_time: "AVG service time at customer (min)", 
+            met_comp: "Route Compliance Rate (%)", 
+            met_act_abs: "Active Outlet (Customers)", 
+            met_act_pct_cov: "Active Outlet (%)", 
+            met_act_pct_visit: "Visit Conversion Rate (%)", 
             met_sku: "AVG SKU / Invoice", 
-            met_val: "AVG Value / Invoice", met_sal_cus: "Sales/ customers", met_sal_kae: "Sales/ KAE"
+            met_val: "AVG Value / Invoice", 
+            met_sal_cus: "AVG Sales per customer (VND)", 
+            met_sal_kae: "Sales/ KAE",
+
+            // MÔ TẢ CHỈ SỐ
+            desc_title: "METRICS DESCRIPTION",
+            desc_dist: "Total distance traveled divided by the total number of working days.",
+            desc_time: "Total time spent at outlets divided by the total number of visits.",
+            desc_comp: "The percentage of visits made to planned ('in-route') customers over total visits.",
+            desc_act_abs: "The unique number of customers who placed at least one valid order.",
+            desc_act_pct_cov: "The percentage of unique active outlets out of the total unique visited customers.",
+            desc_act_pct_visit: "The percentage of active outlets achieved per total store visits (measuring visit efficiency).",
+            desc_sku: "The average number of SKUs sold per valid invoice/order.",
+            desc_val: "The average revenue generated per valid invoice/order.",
+            desc_sal_cus: "Total sales divided by the total number of visits made."
         },
         vi: {
             app_title: "Đánh Giá Hiệu Quả & Năng Suất Tuyến",
@@ -247,17 +284,34 @@
             crit_applied: "THANG ĐÁNH GIÁ ÁP DỤNG",
             item: "Hạng mục", old_route: "Tuyến Cũ", rev_1st: "Tuyến Mới (Revise)", pct_imp: "% Cải thiện", eval_eff: "Đánh giá hiệu quả",
             st_good: "Tốt", st_pass: "Đạt", st_imp: "Cần cải thiện", st_fail: "Không hiệu quả",
-            met_dist: "Khoảng cách TB/ ngày (Km)", met_time: "Thời gian phục vụ TB/ điểm (Phút)", met_comp: "Tuân thủ lộ trình (%) (Tuyệt đối)", 
-            met_act_abs: "Điểm bán hoạt động (Điểm)", 
-            met_act_pct_visit: "Điểm bán HĐ / Lượt ghé thăm (%)", 
-            met_act_pct_cov: "Điểm bán HĐ / Khách ghé thăm (%)", 
+            
+            // TÊN CHỈ SỐ
+            met_dist: "Trung bình quãng đường phải di chuyển trong 1 ngày (Km)", 
+            met_time: "Trung bình thời gian phục vụ tại khách hàng (Phút)", 
+            met_comp: "Tỷ lệ tuân thủ lộ trình (%)", 
+            met_act_abs: "Khách hàng lên đơn (Khách hàng)", 
+            met_act_pct_cov: "Tỷ lệ khách hàng lên đơn (%)", 
+            met_act_pct_visit: "Tỷ lệ chuyển đổi ghé thăm thành đơn (%)", 
             met_sku: "AVG SKU / Đơn", 
-            met_val: "AVG Giá trị / Đơn", met_sal_cus: "Doanh số/ Khách hàng", met_sal_kae: "Doanh số/ KAE"
+            met_val: "AVG Giá trị / Đơn", 
+            met_sal_cus: "Trung bình doanh số trên mỗi khách hàng (VND)", 
+            met_sal_kae: "Doanh số/ KAE",
+
+            // MÔ TẢ CHỈ SỐ
+            desc_title: "MÔ TẢ CHI TIẾT HẠNG MỤC",
+            desc_dist: "Tổng quãng đường di chuyển chia cho tổng số ngày làm việc thực tế.",
+            desc_time: "Tổng thời gian lưu lại tại các điểm bán chia cho tổng số lượt ghé thăm.",
+            desc_comp: "Tỷ lệ phần trăm các lượt ghé thăm đúng theo kế hoạch (khách hàng 'Trong tuyến') trên tổng số lượt đi.",
+            desc_act_abs: "Số lượng khách hàng (không tính trùng lặp) có phát sinh đơn hàng thành công.",
+            desc_act_pct_cov: "Khách hàng lên đơn chia cho Tổng số khách hàng ĐÃ ghé thăm (Đo lường độ bao phủ thực tế).",
+            desc_act_pct_visit: "Số lượng khách hàng lên đơn chia cho Tổng số lượt ghé thăm (Đo lường tỷ lệ chốt đơn theo lượt).",
+            desc_sku: "Tổng số mặt hàng (SKU) bán được chia cho Tổng số lượng đơn hàng.",
+            desc_val: "Tổng giá trị doanh số chia cho Tổng số lượng đơn hàng.",
+            desc_sal_cus: "Tổng doanh số thu được chia cho Tổng số lượt ghé thăm."
         }
     };
 
     let currentLang = 'en';
-    // BIẾN LƯU TRẠNG THÁI HIỆN TẠI ĐỂ KHÔNG BỊ RESET KHI ĐỔI NGÔN NGỮ
     let currentApiStatus = 'st_waiting';
     let currentSupaStatus = 'st_unloaded';
     let currentBtnLoad = 'btn_load';
@@ -271,7 +325,6 @@
             else el.innerHTML = t(key);
         });
         
-        // Cập nhật lại chính xác trạng thái hiện hành thay vì reset về mặc định
         document.getElementById('st-api').innerText = t(currentApiStatus);
         document.getElementById('st-supa').innerText = t(currentSupaStatus);
         document.getElementById('btn-load').innerText = t(currentBtnLoad);
@@ -608,8 +661,8 @@
                 avgTime: raw.time / raw.out, 
                 comp: (raw.inR / raw.out) * 100, 
                 actAbs: raw.actCus, 
-                actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0, 
-                actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, 
+                actPctCov: raw.visCus > 0 ? (raw.actCus / raw.visCus) * 100 : 0, // Đảo lên trên
+                actPctVisit: raw.out > 0 ? (raw.actCus / raw.out) * 100 : 0,    // Kéo xuống dưới
                 skuInv: raw.poCount > 0 ? (raw.sku / raw.poCount) : 0,
                 valInv: raw.poCount > 0 ? (raw.sales / raw.poCount) : 0, 
                 salCus: raw.sales / raw.out, 
@@ -636,8 +689,8 @@
         let c = {
             avgDist: { t:20, d:10, c:0 }, avgTime: { t:20, d:10, c:0 }, 
             actAbs: { t:15, d:5, c:0 }, 
-            actPctVisit: { t:15, d:5, c:0 }, 
             actPctCov: { t:15, d:5, c:0 }, 
+            actPctVisit: { t:15, d:5, c:0 }, 
             skuInv: { t:15, d:5, c:0 }, 
             valInv: { t:20, d:10, c:0 }, salCus: { t:20, d:10, c:0 }, salKae: { t:25, d:10, c:0 }
         }[item] || { t:20, d:10, c:0 };
@@ -660,8 +713,8 @@
             { key: 'avgTime', label: t('met_time'), isCurr: false },
             { key: 'comp', label: t('met_comp'), isCurr: false, isPct: true }, 
             { key: 'actAbs', label: t('met_act_abs'), isCurr: false },
-            { key: 'actPctVisit', label: t('met_act_pct_visit'), isCurr: false, isPct: true }, 
             { key: 'actPctCov', label: t('met_act_pct_cov'), isCurr: false, isPct: true }, 
+            { key: 'actPctVisit', label: t('met_act_pct_visit'), isCurr: false, isPct: true }, 
             { key: 'skuInv', label: t('met_sku'), isCurr: false },
             { key: 'valInv', label: t('met_val'), isCurr: true }, 
             { key: 'salCus', label: t('met_sal_cus'), isCurr: true },
