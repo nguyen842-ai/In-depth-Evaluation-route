@@ -174,7 +174,6 @@
         </table>
     </div>
 </div>
-
 <script>
     /* =========================================
        1. CẤU HÌNH HỆ THỐNG & BIẾN TOÀN CỤC
@@ -193,7 +192,6 @@
     let rawRoute = [];
     let rawOrder = [];
     
-    // Bộ nhớ đệm lưu dữ liệu đã tính toán sẵn cho toàn bộ hệ thống
     let precalcKAE = {}; 
     let precalcKAM = {};
     let isDataReady = false;
@@ -227,7 +225,6 @@
         selArea.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
         [...areas].sort().forEach(a => selArea.innerHTML += `<option value="${a}">${a}</option>`);
 
-        // Tự động load dữ liệu từ bộ nhớ khi thay đổi Dropdown
         selArea.addEventListener('change', () => {
             let a = selArea.value;
             let selKam = document.getElementById('sel-kam');
@@ -264,7 +261,7 @@
     }
 
     /* =========================================
-       3. TẢI DATA EXCEL & TIỀN XỬ LÝ (CHỈ CHẠY 1 LẦN)
+       3. TẢI DATA EXCEL & BẮT CỘT THÔNG MINH
     ========================================= */
     async function loadData() {
         let btn = document.getElementById('btn-load');
@@ -277,22 +274,19 @@
             if (error) throw error;
 
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
-            let bRoute = await rRoute.arrayBuffer();
-            let wbRoute = XLSX.read(bRoute, {type: 'array'});
+            let wbRoute = XLSX.read(await rRoute.arrayBuffer(), {type: 'array'});
             rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1, defval: ""});
 
             let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
-            let bOrder = await rOrder.arrayBuffer();
-            let wbOrder = XLSX.read(bOrder, {type: 'array'});
+            let wbOrder = XLSX.read(await rOrder.arrayBuffer(), {type: 'array'});
             rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1, defval: ""});
 
             findColumns();
-            if (idx.NV === -1 || idx.DATE === -1) {
-                alert("⚠️ Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày' trong file Excel Lộ trình!");
+            if (idx.NV === -1 || idx.DATE === -1 || idx.DAY === -1) {
+                alert("⚠️ Lỗi: Không tìm thấy cột 'Tên nhân viên', 'Ngày' hoặc 'Thứ' trong file Excel!");
                 return;
             }
 
-            // Kích hoạt lõi tính toán toàn bộ
             calculateAllData();
 
             isDataReady = true;
@@ -302,7 +296,7 @@
             renderUI();
         } catch(e) {
             console.error(e);
-            alert("Lỗi xử lý file Supabase! Vui lòng kiểm tra lại quyền truy cập hoặc F12.");
+            alert("Lỗi xử lý file Supabase! Vui lòng F12 xem chi tiết.");
             document.getElementById('st-supa').innerText = "❌ Lỗi tải dữ liệu";
         } finally {
             btn.disabled = false;
@@ -311,39 +305,61 @@
     }
 
     function findColumns() {
-        let header = Array.from(rawRoute[0] || []).map(h => String(h || '').toLowerCase());
-        idx.NV = header.findIndex(h => h.includes('nhân viên') || h.includes('kae') || h === 'nv');
-        idx.DATE = header.findIndex(h => h.includes('ngày') || h.includes('date'));
-        idx.DAY = header.findIndex(h => h.includes('thứ'));
-        idx.IN_OUT = header.findIndex(h => h.includes('lộ trình') || h.includes('tuyến'));
-        idx.LAT = header.findIndex(h => h === 'lat' || h.includes('tọa độ'));
-        idx.LNG = header.findIndex(h => h === 'lng' || (h.includes('tọa độ') && h !== header[idx.LAT]));
-        idx.T_IN = header.findIndex(h => h.includes('bắt đầu'));
-        idx.T_OUT = header.findIndex(h => h.includes('kết thúc'));
-        idx.PO = header.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
+        let header = Array.from(rawRoute[0] || []).map(h => String(h || '').toLowerCase().trim());
+        
+        // Hàm bắt cột nâng cao: Ưu tiên khớp chính xác tuyệt đối, sau đó mới tìm chứa từ khóa
+        let getIdx = (exactArr, includeStr, excludeArr = []) => {
+            let i = header.findIndex(h => exactArr.includes(h));
+            if (i !== -1) return i;
+            if (!includeStr) return -1;
+            return header.findIndex(h => h.includes(includeStr) && !excludeArr.some(exc => h.includes(exc)));
+        };
 
-        let hDh = Array.from(rawOrder[0] || []).map(h => String(h || '').toLowerCase());
-        idxDh.PO = hDh.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
-        idxDh.SALES = hDh.findIndex(h => h.includes('tiền') || h.includes('doanh số'));
-        idxDh.SKU = hDh.findIndex(h => h.includes('sku') || h.includes('mã hàng'));
+        // Chặn tuyệt đối việc bắt nhầm cột
+        idx.NV = getIdx(['tên nhân viên', 'nhân viên', 'nv'], 'nhân viên', ['quản lý', 'mã']);
+        idx.DATE = getIdx(['ngày', 'date'], 'ngày', ['cập nhật']);
+        idx.DAY = getIdx(['thứ', 'day'], 'thứ', ['thứ tự']); // Fix lỗi dính "Thứ tự ghé thăm"
+        idx.IN_OUT = getIdx(['lộ trình', 'loại tuyến'], 'lộ trình', []);
+        idx.LAT = getIdx(['tọa độ ghé thăm lat', 'lat'], 'lat', ['kết thúc']);
+        idx.LNG = getIdx(['tọa độ ghé thăm lng', 'lng'], 'lng', ['kết thúc']);
+        idx.T_IN = getIdx(['thời gian ghé thăm bắt đầu', 'bắt đầu'], 'bắt đầu', []);
+        idx.T_OUT = getIdx(['thời gian ghé thăm kết thúc', 'kết thúc'], 'kết thúc', ['tọa độ']);
+        idx.PO = getIdx(['danh sách đơn hàng', 'đơn hàng', 'po'], 'đơn hàng', ['mã']);
+
+        let hDh = Array.from(rawOrder[0] || []).map(h => String(h || '').toLowerCase().trim());
+        idxDh.PO = getIdx(['mã đơn hàng', 'đơn hàng', 'po'], 'đơn', [], hDh);
+        if (idxDh.PO === -1) idxDh.PO = hDh.findIndex(h => h.includes('đơn hàng') || h.includes('po'));
+        idxDh.SALES = hDh.findIndex(h => h.includes('tiền') || h.includes('doanh số') || h.includes('doanh thu'));
+        idxDh.SKU = hDh.findIndex(h => h.includes('sku') || h.includes('mã hàng') || h.includes('sản phẩm'));
     }
 
     /* =========================================
-       4. LOGIC TÍNH TOÁN CORE (CLEAN NAME & 1:1 MATCHING)
+       4. LOGIC LÕI "BỌC THÉP" CHỐNG LỖI DATA
     ========================================= */
-    function cleanName(n) { return String(n || '').trim().toLowerCase(); }
+    // Chuẩn hóa tên: Bỏ chữ KAE, DSR, KAM ở đầu để Match 100%
+    function cleanName(n) { 
+        return String(n || '').trim().toLowerCase().replace(/^(kae|dsr|kam)\s+/g, ''); 
+    }
     
+    // Đọc mọi định dạng ngày: Date chuỗi, Date phân số Excel
     function parseExcelDate(val) {
         if(!val) return new Date(0);
-        if(typeof val === 'number') return new Date(Math.round((val - 25569) * 86400 * 1000));
+        if(!isNaN(val) && String(val).trim() !== '') {
+            return new Date(Math.round((Number(val) - 25569) * 86400 * 1000));
+        }
         let str = String(val).trim();
         let p = str.split(/[\/\-]/);
-        if(p.length === 3) return new Date(p[2], p[1]-1, p[0]);
+        if(p.length === 3) {
+            if(p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+            return new Date(p[2], p[1]-1, p[0]);
+        }
         return new Date(str); 
     }
 
+    // Xử lý cả giờ dạng "10:15" lẫn phân số thập phân của Excel (vd: 0.428)
     function timeToMins(t) {
-        if(!t) return 0;
+        if(!t && t !== 0) return 0;
+        if(typeof t === 'number') return Math.round(t * 24 * 60); 
         let p = String(t).split(':');
         return (parseInt(p[0])||0)*60 + (parseInt(p[1])||0);
     }
@@ -379,6 +395,7 @@
             let eDate = parseExcelDate(config.endDate);
             let rDate = parseExcelDate(config.currentRevise);
 
+            // Bất tử hóa việc tìm tên Nhân viên
             let dataKAE = dataRows.filter(r => cleanName(r[idx.NV]) === kSearch && r[idx.DATE]);
 
             let reviseSet = dataKAE.filter(r => {
@@ -386,13 +403,13 @@
                 return d >= sDate && d <= eDate;
             });
 
-            let reviseDays = [...new Set(reviseSet.map(r => r[idx.DAY]))].filter(Boolean);
+            let reviseDays = [...new Set(reviseSet.map(r => String(r[idx.DAY]).trim()))].filter(Boolean);
             let historicalSet = dataKAE.filter(r => parseExcelDate(r[idx.DATE]) < rDate).reverse();
             
             let foundDatesForDay = {};
             reviseDays.forEach(day => foundDatesForDay[day] = null); 
             for(let row of historicalSet) {
-                let day = row[idx.DAY];
+                let day = String(row[idx.DAY]).trim();
                 if(reviseDays.includes(day) && foundDatesForDay[day] === null) foundDatesForDay[day] = row[idx.DATE]; 
             }
             
@@ -534,14 +551,12 @@
             return;
         }
 
-        // Xử lý hộp cảnh báo
         if(selKae && apiConfig[selKae] && !apiConfig[selKae].hasRevise) {
             document.getElementById('warning-box').style.display = 'block';
         } else {
             document.getElementById('warning-box').style.display = 'none';
         }
 
-        // Hiển thị Tab KAE
         if(selKae) {
             document.getElementById('title-kae').innerText = `Hiệu quả theo Sale Team: ${selKae}`;
             let kData = precalcKAE[selKae];
@@ -555,14 +570,12 @@
             document.getElementById('tbody-team').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Vui lòng chọn Nhân viên</td></tr>';
         }
 
-        // Hiển thị Tab KAM
         document.getElementById('title-kam').innerText = `Hiệu quả tổng hợp của KAM: ${selKam}`;
         if(precalcKAM[selKam]) {
             renderTable('tbody-kam', precalcKAM[selKam].old, precalcKAM[selKam].rev);
         }
     }
 
-    // Nút chuyển Tabs
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -570,8 +583,8 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Chạy khi mở trình duyệt
     window.onload = init;
 </script>
+
 </body>
 </html>
