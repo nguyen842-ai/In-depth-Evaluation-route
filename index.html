@@ -375,7 +375,7 @@
         }
     }
 
-    function cleanName(n) { return String(n || '').trim().toLowerCase().replace(/^(kae|dsr|kam)\s+/g, ''); }
+    function cleanName(n) { return String(n || '').trim().toLowerCase(); }
     function extractNumber(val) { 
         if(!val) return 0;
         if(typeof val === 'number') return val;
