@@ -223,7 +223,7 @@
         document.getElementById('sel-kam').addEventListener('change', renderUI);
     }
 
-    /* =========================================
+   /* =========================================
        3. TẢI EXCEL & BẮT CỘT CHUẨN XÁC
     ========================================= */
     async function loadData() {
@@ -235,14 +235,23 @@
             const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
             if (error) throw error;
 
+            // Xử lý file Route (Lộ trình) - Đọc Buffer 1 lần duy nhất
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
-            rawRoute = XLSX.utils.sheet_to_json(XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
+            let bufferRoute = await rRoute.arrayBuffer(); 
+            let wbRoute = XLSX.read(bufferRoute, {type: 'array'});
+            rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1, defval: ""});
 
+            // Xử lý file Order (Đơn hàng) - Đọc Buffer 1 lần duy nhất
             let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
-            rawOrder = XLSX.utils.sheet_to_json(XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
+            let bufferOrder = await rOrder.arrayBuffer();
+            let wbOrder = XLSX.read(bufferOrder, {type: 'array'});
+            rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1, defval: ""});
 
             findColumns();
-            if (idx.NV === -1 || idx.DATE === -1) { alert("Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày'!"); return; }
+            if (idx.NV === -1 || idx.DATE === -1) { 
+                alert("Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày'!"); 
+                return; 
+            }
 
             calculateAllData();
             isDataReady = true;
@@ -250,10 +259,11 @@
             document.getElementById('st-supa').style.color = "#16a34a";
             renderUI();
         } catch(e) {
-            console.error(e);
-            alert("Lỗi xử lý file Supabase! Vui lòng F12.");
+            console.error("Chi tiết lỗi:", e);
+            alert("Lỗi xử lý file Supabase! Vui lòng kiểm tra Console (F12).");
         } finally {
-            btn.disabled = false; btn.innerText = "🔄 Làm mới dữ liệu";
+            btn.disabled = false; 
+            btn.innerText = "🔄 Làm mới dữ liệu";
         }
     }
 
