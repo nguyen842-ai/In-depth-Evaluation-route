@@ -162,7 +162,6 @@
         </table>
     </div>
 </div>
-
 <script>
     /* =========================================
        1. CẤU HÌNH & BIẾN
@@ -225,9 +224,9 @@
     }
 
     /* =========================================
-       3. TẢI EXCEL & BẮT CỘT
+       3. TẢI EXCEL & BẮT CỘT CHUẨN XÁC
     ========================================= */
-async function loadData() {
+    async function loadData() {
         let btn = document.getElementById('btn-load');
         btn.disabled = true; btn.innerText = "⏳ Đang tính toán dữ liệu...";
         document.getElementById('st-supa').innerText = "Đang tải & xử lý...";
@@ -236,16 +235,11 @@ async function loadData() {
             const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
             if (error) throw error;
 
-            // Đã tách ra đọc Buffer 1 lần duy nhất để không bị lỗi crash
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
-            let bRoute = await rRoute.arrayBuffer();
-            let wbRoute = XLSX.read(bRoute, {type: 'array'});
-            rawRoute = XLSX.utils.sheet_to_json(wbRoute.Sheets[wbRoute.SheetNames[0]], {header: 1, defval: ""});
+            rawRoute = XLSX.utils.sheet_to_json(XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rRoute.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
 
             let rOrder = await fetch(data.find(u => u.path === FILE_ORDER).signedUrl);
-            let bOrder = await rOrder.arrayBuffer();
-            let wbOrder = XLSX.read(bOrder, {type: 'array'});
-            rawOrder = XLSX.utils.sheet_to_json(wbOrder.Sheets[wbOrder.SheetNames[0]], {header: 1, defval: ""});
+            rawOrder = XLSX.utils.sheet_to_json(XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).Sheets[XLSX.read(await rOrder.arrayBuffer(), {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
 
             findColumns();
             if (idx.NV === -1 || idx.DATE === -1) { alert("Lỗi: Không tìm thấy cột 'Tên nhân viên' hoặc 'Ngày'!"); return; }
@@ -281,15 +275,26 @@ async function loadData() {
         idx.T_OUT = getIdx(['thời gian ghé thăm kết thúc', 'kết thúc'], 'kết thúc', ['tọa độ']);
         idx.PO = getIdx(['danh sách đơn hàng', 'đơn hàng', 'po'], 'đơn hàng', ['mã']);
 
+        // --- FIX TỨC THỜI CHO FILE ĐƠN HÀNG (DH.XLSX) ---
         let hDh = Array.from(rawOrder[0] || []).map(h => String(h || '').toLowerCase().trim());
-        let getIdxDh = (ex, inc, exc=[]) => {
-            let i = hDh.findIndex(h => ex.includes(h));
-            if(i !== -1) return i;
-            return hDh.findIndex(h => h.includes(inc) && !exc.some(e => h.includes(e)));
-        };
-        idxDh.PO = getIdxDh(['mã đơn hàng', 'đơn hàng', 'po', 'order no'], 'đơn', []);
-        idxDh.SALES = getIdxDh(['tiền', 'doanh số', 'doanh thu', 'amount', 'sales'], 'tiền', []);
-        idxDh.SKU = getIdxDh(['sku', 'mã hàng', 'sản phẩm', 'item'], 'sku', []);
+        
+        // Cột PO: Ưu tiên khớp chính xác "mã đơn đặt hàng" như trong hình
+        idxDh.PO = hDh.findIndex(h => h === 'mã đơn đặt hàng' || h === 'mã đơn hàng' || h === 'po');
+        if (idxDh.PO === -1) idxDh.PO = hDh.findIndex(h => h.includes('đơn đặt hàng'));
+
+        // Cột Sales: "thành tiền sản phẩm bán" hoặc "chưa vat"
+        idxDh.SALES = hDh.findIndex(h => h === 'thành tiền sản phẩm bán' || h === 'chưa vat' || h === 'thành tiền');
+        if (idxDh.SALES === -1) idxDh.SALES = hDh.findIndex(h => h.includes('thành tiền') || h.includes('chưa vat'));
+
+        // Cột SKU: "mã sản phẩm đơn bán"
+        idxDh.SKU = hDh.findIndex(h => h === 'mã sản phẩm đơn bán' || h === 'mã sản phẩm' || h === 'sku');
+        if (idxDh.SKU === -1) idxDh.SKU = hDh.findIndex(h => h.includes('mã sản phẩm'));
+        
+        console.log("Cột dh.xlsx tìm được:", { 
+            Tên_Cột_PO: hDh[idxDh.PO], 
+            Tên_Cột_Sales: hDh[idxDh.SALES], 
+            Tên_Cột_SKU: hDh[idxDh.SKU] 
+        });
     }
 
     /* =========================================
@@ -359,15 +364,19 @@ async function loadData() {
                     if(i < dataset.length-1 && r[idx.DATE] === dataset[i+1][idx.DATE]) {
                         dist += getDistance(r[idx.LAT], r[idx.LNG], dataset[i+1][idx.LAT], dataset[i+1][idx.LNG]);
                     }
+                    
                     let poStr = String(r[idx.PO]||'').trim().toUpperCase();
                     if(poStr && (poStr.includes('PO') || /[0-9]/.test(poStr))) {
                         let listPo = poStr.split(/[\n,;\s]+/).map(p=>p.trim()).filter(Boolean);
                         poCount += listPo.length; 
+                        
                         listPo.forEach(p => {
                             if(idxDh.PO !== -1) {
+                                // Quét toàn bộ file dh.xlsx để tìm dòng khớp mã PO
                                 rawOrder.filter(o => String(o[idxDh.PO]).trim().toUpperCase() === p).forEach(dh => {
                                     if(idxDh.SALES !== -1) sales += extractNumber(dh[idxDh.SALES]);
-                                    sku += (idxDh.SKU !== -1 && dh[idxDh.SKU]) ? extractNumber(dh[idxDh.SKU]) : 1;
+                                    // Sửa lỗi tính SKU: Mỗi dòng tìm thấy là 1 SKU riêng biệt, cộng thêm 1
+                                    sku += 1;
                                 });
                             }
                         });
