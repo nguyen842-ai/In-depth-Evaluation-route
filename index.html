@@ -184,7 +184,7 @@
     const FILE_ROUTE = 'valuationroute.xlsx'; 
     const FILE_ORDER = 'dh.xlsx';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const appSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Biến toàn cục
     let apiConfig = {}; // Lưu data từ Google Sheet
@@ -260,8 +260,7 @@
         document.getElementById('st-supa').innerText = "Đang tải...";
         
         try {
-            const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);
-            if (error) throw error;
+const { data, error } = await appSupabase.storage.from(BUCKET).createSignedUrls([FILE_ROUTE, FILE_ORDER], 60);            if (error) throw error;
 
             // Load Route
             let rRoute = await fetch(data.find(u => u.path === FILE_ROUTE).signedUrl);
