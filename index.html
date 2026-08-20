@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracking Effective & Efficiency Route </title>
+    <title>Tracking Effective & Efficiency Route</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -413,7 +413,8 @@
         if (rawRoute.length === 0) return;
 
         let selReviseValue = document.getElementById('sel-revise').value;
-        allKaeRaw = {}; allKamRaw = {}; precalcKAE = {}; precalcKAM = {};
+        let allKaeRaw = {}, allKamRaw = {};
+        precalcKAE = {}; precalcKAM = {};
 
         let kams = new Set();
         Object.values(apiConfig).forEach(c => { if(c.kam) kams.add(c.kam); });
@@ -425,10 +426,29 @@
         let dataRows = rawRoute.slice(1);
         let orderRows = rawOrder.slice(1);
 
+        // Đánh index đơn hàng theo PO (chỉ 1 lần) để tra cứu nhanh & chính xác hơn,
+        // thay vì filter() lại toàn bộ orderRows cho từng PO của từng nhân viên (rất chậm với data lớn)
+        let orderIndex = new Map();
+        orderRows.forEach(o => {
+            let poKey = String(o[idxDh.PO] || '').trim().toUpperCase();
+            if (!poKey) return;
+            if (!orderIndex.has(poKey)) orderIndex.set(poKey, []);
+            orderIndex.get(poKey).push(o);
+        });
+
+        // FIX: nếu 1 nhân viên bị lặp trong apiConfig (do khác cách viết hoa/thường,
+        // hoặc còn dính tiền tố KAE/DSR), tên chuẩn hoá (cleanName) sẽ trùng nhau.
+        // Trước đây mỗi bản ghi trùng bị tính riêng => nhân đôi headcount & doanh số của KAM.
+        // Giờ chỉ xử lý lần xuất hiện đầu tiên của mỗi tên đã chuẩn hoá.
+        let seenKaeNames = new Set();
+
         Object.keys(apiConfig).forEach(kaeName => {
             let config = apiConfig[kaeName];
             let kSearch = cleanName(kaeName);
-            
+
+            if (seenKaeNames.has(kSearch)) return; // đã xử lý nhân viên này rồi, bỏ qua bản ghi trùng
+            seenKaeNames.add(kSearch);
+
             let revList = config.revises || [];
             let targetRev = null;
             let isValidRevise = false;
@@ -460,15 +480,31 @@
             let oldSet = dataKAE.filter(r => { let d = parseExcelDate(r[idx.DATE]); return d >= osDate && d <= oeDate; });
 
             const compileSet = (dataset) => {
-                let dist = 0, time = 0, out = dataset.length, inR = 0, poCount = 0, sales = 0, sku = 0;
-                let uniqueDays = new Set(dataset.map(r => r[idx.DATE])).size || 1;
+                // FIX: sắp xếp theo ngày + giờ check-in trước khi tính khoảng cách giữa các điểm liên tiếp.
+                // Dữ liệu gốc không đảm bảo đã theo đúng thứ tự thời gian di chuyển thực tế,
+                // nên nếu không sắp xếp, khoảng cách tính ra có thể sai (nối nhầm điểm không liền kề nhau).
+                let sorted = [...dataset].sort((a, b) => {
+                    let dDate = parseExcelDate(a[idx.DATE]) - parseExcelDate(b[idx.DATE]);
+                    if (dDate !== 0) return dDate;
+                    return timeToMins(a[idx.T_IN]) - timeToMins(b[idx.T_IN]);
+                });
 
-                dataset.forEach((r, i) => {
-                    if(String(r[idx.IN_OUT] || '').toLowerCase().includes('trong') || String(r[idx.IN_OUT] || '').toLowerCase().includes('in')) inR++;
+                let dist = 0, time = 0, out = sorted.length, inR = 0, poCount = 0, sales = 0, sku = 0;
+                let uniqueDays = new Set(sorted.map(r => parseExcelDate(r[idx.DATE]).toDateString())).size || 1;
+                // Chống đếm trùng: 1 đơn hàng chỉ được cộng vào doanh số/SKU đúng 1 lần,
+                // kể cả khi có nhiều PO gần giống nhau cùng khớp tới nó.
+                let claimedOrders = new Set();
+
+                sorted.forEach((r, i) => {
+                    // FIX: trước đây so khớp lỏng lẻo bằng .includes('in') khiến gần như mọi giá trị
+                    // (kể cả không liên quan) đều bị tính là "trong tuyến". Giờ so khớp chính xác giá trị đã trim/lowercase.
+                    let inOutVal = String(r[idx.IN_OUT] || '').trim().toLowerCase();
+                    if (inOutVal.includes('trong') || inOutVal === 'in' || inOutVal.startsWith('in ')) inR++;
+
                     let tI = timeToMins(r[idx.T_IN]), tO = timeToMins(r[idx.T_OUT]);
                     if(tO > tI) time += (tO - tI);
-                    if(i < dataset.length-1 && r[idx.DATE] === dataset[i+1][idx.DATE]) {
-                        dist += getDistance(r[idx.LAT], r[idx.LNG], dataset[i+1][idx.LAT], dataset[i+1][idx.LNG]);
+                    if(i < sorted.length-1 && parseExcelDate(r[idx.DATE]).toDateString() === parseExcelDate(sorted[i+1][idx.DATE]).toDateString()) {
+                        dist += getDistance(r[idx.LAT], r[idx.LNG], sorted[i+1][idx.LAT], sorted[i+1][idx.LNG]);
                     }
                     
                     let poStr = String(r[idx.PO] || '').trim().toUpperCase();
@@ -477,12 +513,23 @@
                         poCount += listPo.length; 
                         
                         listPo.forEach(p => {
-                            orderRows.filter(o => {
-                                let dhPo = String(o[idxDh.PO] || '').trim().toUpperCase();
-                                return dhPo !== '' && (dhPo === p || dhPo.includes(p) || p.includes(dhPo));
-                            }).forEach(dh => {
+                            // Ưu tiên khớp CHÍNH XÁC qua index (nhanh & đúng). Chỉ dò gần đúng
+                            // (includes 2 chiều) khi không tìm được khớp chính xác nào, để giảm rủi ro
+                            // khớp nhầm PO khác (VD "PO123" khớp nhầm "PO1234").
+                            let matches = orderIndex.get(p);
+                            if (!matches || matches.length === 0) {
+                                matches = [];
+                                for (let [key, rows] of orderIndex.entries()) {
+                                    if (key.includes(p) || p.includes(key)) matches.push(...rows);
+                                }
+                            }
+                            matches.forEach(dh => {
+                                if (claimedOrders.has(dh)) return; // đơn hàng này đã được cộng rồi, tránh double count
+                                claimedOrders.add(dh);
                                 sales += extractNumber(dh[idxDh.SALES]);
-                                sku += 1;
+                                // FIX: trước đây cộng "sku += 1" (đếm số đơn khớp) thay vì đọc đúng
+                                // số lượng SKU thật của đơn hàng ở cột idxDh.SKU => sai toàn bộ chỉ số "SKU/ Đơn hàng".
+                                sku += extractNumber(dh[idxDh.SKU]);
                             });
                         });
                     }
