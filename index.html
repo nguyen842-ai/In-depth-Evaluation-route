@@ -267,7 +267,8 @@
         }
     }
 
-    function findColumns() {
+   function findColumns() {
+        // 1. Tự động tìm cột cho file Lộ trình (Route) - Vẫn giữ nguyên logic bọc thép
         let header = Array.from(rawRoute[0] || []).map(h => String(h || '').toLowerCase().trim());
         let getIdx = (ex, inc, exc=[]) => {
             let i = header.findIndex(h => ex.includes(h));
@@ -285,26 +286,12 @@
         idx.T_OUT = getIdx(['thời gian ghé thăm kết thúc', 'kết thúc'], 'kết thúc', ['tọa độ']);
         idx.PO = getIdx(['danh sách đơn hàng', 'đơn hàng', 'po'], 'đơn hàng', ['mã']);
 
-        // --- FIX TỨC THỜI CHO FILE ĐƠN HÀNG (DH.XLSX) ---
-        let hDh = Array.from(rawOrder[0] || []).map(h => String(h || '').toLowerCase().trim());
+        // 2. GÁN CHẾT CỘT CHO FILE ĐƠN HÀNG (DH.XLSX) THEO ĐÚNG VỊ TRÍ
+        idxDh.PO = 3;      // Cột D (Index 3)  -> MÃ ĐƠN ĐẶT HÀNG
+        idxDh.SKU = 20;    // Cột U (Index 20) -> MÃ SẢN PHẨM ĐƠN BÁN
+        idxDh.SALES = 34;  // Cột AI (Index 34)-> CHƯA VAT
         
-        // Cột PO: Ưu tiên khớp chính xác "mã đơn đặt hàng" như trong hình
-        idxDh.PO = hDh.findIndex(h => h === 'mã đơn đặt hàng' || h === 'mã đơn hàng' || h === 'po');
-        if (idxDh.PO === -1) idxDh.PO = hDh.findIndex(h => h.includes('đơn đặt hàng'));
-
-        // Cột Sales: "thành tiền sản phẩm bán" hoặc "chưa vat"
-        idxDh.SALES = hDh.findIndex(h => h === 'thành tiền sản phẩm bán' || h === 'chưa vat' || h === 'thành tiền');
-        if (idxDh.SALES === -1) idxDh.SALES = hDh.findIndex(h => h.includes('thành tiền') || h.includes('chưa vat'));
-
-        // Cột SKU: "mã sản phẩm đơn bán"
-        idxDh.SKU = hDh.findIndex(h => h === 'mã sản phẩm đơn bán' || h === 'mã sản phẩm' || h === 'sku');
-        if (idxDh.SKU === -1) idxDh.SKU = hDh.findIndex(h => h.includes('mã sản phẩm'));
-        
-        console.log("Cột dh.xlsx tìm được:", { 
-            Tên_Cột_PO: hDh[idxDh.PO], 
-            Tên_Cột_Sales: hDh[idxDh.SALES], 
-            Tên_Cột_SKU: hDh[idxDh.SKU] 
-        });
+        console.log("Đã gán chết cột dh.xlsx:", { PO: 'Cột D', SKU: 'Cột U', SALES: 'Cột AI' });
     }
 
     /* =========================================
