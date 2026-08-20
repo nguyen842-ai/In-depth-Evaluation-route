@@ -398,6 +398,9 @@
     }
 
     function calculateAllData() {
+        let allKaeRaw = {}; 
+        let allKamRaw = {};
+
         let kams = new Set();
         Object.values(apiConfig).forEach(c => { if(c.kam) kams.add(c.kam); });
         kams.forEach(k => {
