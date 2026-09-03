@@ -310,7 +310,7 @@
         }
     };
 
-    let currentLang = 'en';
+    let currentLang = 'vi';
     let currentApiStatus = 'st_waiting';
     let currentSupaStatus = 'st_unloaded';
     let currentBtnLoad = 'btn_load';
@@ -371,7 +371,7 @@
     let idxDh = { PO: 0, SKU: 1, SALES: 2 }; 
 
     async function init() {
-        changeLang('en');
+        changeLang('vi');
         try {
             let res = await fetch(GOOGLE_API_URL);
             apiConfig = await res.json();
