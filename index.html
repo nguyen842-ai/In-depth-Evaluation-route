@@ -541,12 +541,13 @@
 
         let seenKaeNames = new Set();
 
-        Object.keys(apiConfig).forEach(kaeName => {
+       Object.keys(apiConfig).forEach(kaeName => {
             let config = apiConfig[kaeName];
             let kSearch = cleanName(kaeName);
-            let area = config.area || "";
+            let area = String(config.area || "").trim(); // Lấy chính xác tên Area trong Config
 
-            // UPDATE: Đảm bảo nhân viên trùng tên nhưng khác khu vực không bị skip
+            // 1. Khóa chống trùng lặp ghép giữa Tên + Khu Vực 
+            // (Đảm bảo người ở HCMC và Ha Noi được tính là 2 người riêng biệt)
             let uniqueKaeKey = kSearch + "_" + area;
             if (seenKaeNames.has(uniqueKaeKey)) return; 
             seenKaeNames.add(uniqueKaeKey);
@@ -576,21 +577,23 @@
             let osDateNum = toYYYYMMDD(targetRev.oldStartDate);
             let oeDateNum = toYYYYMMDD(targetRev.oldEndDate);
 
-            // UPDATE: Lọc chéo thêm cột Mã Nhân Viên với Khu Vực
+            // 2. Bộ lọc chéo ánh xạ chính xác tuyệt đối theo mã Khu vực
             let dataKAE = dataRows.filter(r => {
-                if (!r[idx.DATE]) return false; // Dòng không có ngày
+                if (!r[idx.DATE]) return false; 
+                
                 let rowName = cleanName(r[idx.NV]);
-                if (!rowName.includes(kSearch)) return false; // Không khớp tên
+                if (!rowName.includes(kSearch)) return false; 
 
                 let empCode = String(r[idx.EMP_CODE] || "").trim().toUpperCase();
                 
-                // Nếu mã NV bắt đầu bằng HCM nhưng khu vực của NV trong config không phải HCMC -> loại
-                if (empCode.startsWith("HCM") && !area.includes("HCMC")) return false;
+                // Nếu cột F có chữ HCM, nhưng khu vực của nhân viên này không phải "1. HCMC" -> Loại 
+                if (empCode.startsWith("HCM") && area !== "1. HCMC") return false;
                 
-                // Nếu mã NV bắt đầu bằng HAN nhưng khu vực của NV trong config không phải Ha Noi -> loại
-                if (empCode.startsWith("HAN") && !area.includes("Ha Noi")) return false;
+                // Nếu cột F có chữ HAN, nhưng khu vực của nhân viên này không phải "1. Ha Noi" -> Loại
+                if (empCode.startsWith("HAN") && area !== "1. Ha Noi") return false;
 
-                return true;
+                // Các mã khác (như NOR,...) tự động lọt qua và khớp bình thường
+                return true; 
             });
             
             let reviseSet = dataKAE.filter(r => { let d = toYYYYMMDD(r[idx.DATE]); return d >= sDateNum && d <= eDateNum; });
